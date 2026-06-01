@@ -15,214 +15,28 @@ STATIC_BASE = os.path.dirname(os.path.abspath(__file__))
 
 PORT = 2009
 
-# 50 most popular verbs in Irish with simple example sentences in
-# present / past / future tense, plus an emoji as the "simple picture".
-VERBS = [
-    {"en": "be", "ga": "bí", "icon": "🌟",
-     "present": "Tá sé anseo.", "past": "Bhí sé anseo.", "future": "Beidh sé anseo."},
-    {"en": "have", "ga": "bí ag", "icon": "🎒",
-     "present": "Tá mála agam.", "past": "Bhí mála agam.", "future": "Beidh mála agam."},
-    {"en": "do", "ga": "déan", "icon": "🛠️",
-     "present": "Déanann sé obair.", "past": "Rinne sé obair.", "future": "Déanfaidh sé obair."},
-    {"en": "say", "ga": "abair", "icon": "💬",
-     "present": "Deir sé dia duit.", "past": "Dúirt sé dia duit.", "future": "Déarfaidh sé dia duit."},
-    {"en": "go", "ga": "téigh", "icon": "🚶",
-     "present": "Téann sé abhaile.", "past": "Chuaigh sé abhaile.", "future": "Rachaidh sé abhaile."},
-    {"en": "get", "ga": "faigh", "icon": "🎁",
-     "present": "Faigheann sé bronntanas.", "past": "Fuair sé bronntanas.", "future": "Gheobhaidh sé bronntanas."},
-    {"en": "make", "ga": "déan", "icon": "🎂",
-     "present": "Déanann sé cáca.", "past": "Rinne sé cáca.", "future": "Déanfaidh sé cáca."},
-    {"en": "know", "ga": "bí a fhios ag", "icon": "🧠",
-     "present": "Tá a fhios aige.", "past": "Bhí a fhios aige.", "future": "Beidh a fhios aige."},
-    {"en": "think", "ga": "smaoinigh", "icon": "💭",
-     "present": "Smaoiníonn sé air.", "past": "Smaoinigh sé air.", "future": "Smaoineoidh sé air."},
-    {"en": "take", "ga": "tóg", "icon": "📖",
-     "present": "Tógann sé an leabhar.", "past": "Thóg sé an leabhar.", "future": "Tógfaidh sé an leabhar."},
-    {"en": "see", "ga": "feic", "icon": "👀",
-     "present": "Feiceann sé an cat.", "past": "Chonaic sé an cat.", "future": "Feicfidh sé an cat."},
-    {"en": "come", "ga": "tar", "icon": "🚪",
-     "present": "Tagann sé isteach.", "past": "Tháinig sé isteach.", "future": "Tiocfaidh sé isteach."},
-    {"en": "want", "ga": "teastaigh", "icon": "💧",
-     "present": "Teastaíonn uisce uaidh.", "past": "Theastaigh uisce uaidh.", "future": "Teastóidh uisce uaidh."},
-    {"en": "look", "ga": "féach", "icon": "🌌",
-     "present": "Féachann sé ar an spéir.", "past": "D'fhéach sé ar an spéir.", "future": "Féachfaidh sé ar an spéir."},
-    {"en": "use", "ga": "úsáid", "icon": "🖊️",
-     "present": "Úsáideann sé peann.", "past": "D'úsáid sé peann.", "future": "Úsáidfidh sé peann."},
-    {"en": "find", "ga": "aimsigh", "icon": "🔑",
-     "present": "Aimsíonn sé an eochair.", "past": "D'aimsigh sé an eochair.", "future": "Aimseoidh sé an eochair."},
-    {"en": "give", "ga": "tabhair", "icon": "🎀",
-     "present": "Tugann sé bronntanas.", "past": "Thug sé bronntanas.", "future": "Tabharfaidh sé bronntanas."},
-    {"en": "tell", "ga": "inis", "icon": "📚",
-     "present": "Insíonn sé scéal.", "past": "D'inis sé scéal.", "future": "Inseoidh sé scéal."},
-    {"en": "work", "ga": "oibrigh", "icon": "💼",
-     "present": "Oibríonn sé go crua.", "past": "D'oibrigh sé go crua.", "future": "Oibreoidh sé go crua."},
-    {"en": "call", "ga": "glaoigh", "icon": "📞",
-     "present": "Glaonn sé ar a mháthair.", "past": "Ghlaoigh sé ar a mháthair.", "future": "Glaofaidh sé ar a mháthair."},
-    {"en": "try", "ga": "déan iarracht", "icon": "🎯",
-     "present": "Déanann sé iarracht.", "past": "Rinne sé iarracht.", "future": "Déanfaidh sé iarracht."},
-    {"en": "ask", "ga": "fiafraigh", "icon": "❓",
-     "present": "Fiafraíonn sé ceist.", "past": "D'fhiafraigh sé ceist.", "future": "Fiafróidh sé ceist."},
-    {"en": "need", "ga": "teastaigh ó", "icon": "😴",
-     "present": "Tá sos uaidh.", "past": "Bhí sos uaidh.", "future": "Beidh sos uaidh."},
-    {"en": "feel", "ga": "mothaigh", "icon": "😪",
-     "present": "Mothaíonn sé tuirseach.", "past": "Mhothaigh sé tuirseach.", "future": "Mothóidh sé tuirseach."},
-    {"en": "become", "ga": "éirigh", "icon": "🥱",
-     "present": "Éiríonn sé tuirseach.", "past": "D'éirigh sé tuirseach.", "future": "Éireoidh sé tuirseach."},
-    {"en": "leave", "ga": "fág", "icon": "🏠",
-     "present": "Fágann sé an teach.", "past": "D'fhág sé an teach.", "future": "Fágfaidh sé an teach."},
-    {"en": "put", "ga": "cuir", "icon": "📕",
-     "present": "Cuireann sé an leabhar síos.", "past": "Chuir sé an leabhar síos.", "future": "Cuirfidh sé an leabhar síos."},
-    {"en": "mean", "ga": "ciallaigh", "icon": "💡",
-     "present": "Ciallaíonn sé sin.", "past": "Chiallaigh sé sin.", "future": "Ciallóidh sé sin."},
-    {"en": "keep", "ga": "coinnigh", "icon": "💶",
-     "present": "Coinníonn sé an t-airgead.", "past": "Choinnigh sé an t-airgead.", "future": "Coinneoidh sé an t-airgead."},
-    {"en": "let", "ga": "lig", "icon": "🕊️",
-     "present": "Ligeann sé dó imeacht.", "past": "Lig sé dó imeacht.", "future": "Ligfidh sé dó imeacht."},
-    {"en": "begin", "ga": "tosaigh", "icon": "🚦",
-     "present": "Tosaíonn sé an obair.", "past": "Thosaigh sé an obair.", "future": "Tosóidh sé an obair."},
-    {"en": "seem", "ga": "is cosúil", "icon": "🤔",
-     "present": "Tá cuma thuirseach air.", "past": "Bhí cuma thuirseach air.", "future": "Beidh cuma thuirseach air."},
-    {"en": "help", "ga": "cabhraigh", "icon": "🤝",
-     "present": "Cabhraíonn sé liom.", "past": "Chabhraigh sé liom.", "future": "Cabhróidh sé liom."},
-    {"en": "talk", "ga": "labhair", "icon": "🗣️",
-     "present": "Labhraíonn sé Gaeilge.", "past": "Labhair sé Gaeilge.", "future": "Labhróidh sé Gaeilge."},
-    {"en": "turn", "ga": "cas", "icon": "🎡",
-     "present": "Casann sé an roth.", "past": "Chas sé an roth.", "future": "Casfaidh sé an roth."},
-    {"en": "start", "ga": "tosaigh", "icon": "🚗",
-     "present": "Tosaíonn sé an carr.", "past": "Thosaigh sé an carr.", "future": "Tosóidh sé an carr."},
-    {"en": "show", "ga": "taispeáin", "icon": "🖼️",
-     "present": "Taispeánann sé an pictiúr.", "past": "Thaispeáin sé an pictiúr.", "future": "Taispeánfaidh sé an pictiúr."},
-    {"en": "hear", "ga": "clois", "icon": "🎵",
-     "present": "Cloiseann sé ceol.", "past": "Chuala sé ceol.", "future": "Cloisfidh sé ceol."},
-    {"en": "play", "ga": "imir", "icon": "⚽",
-     "present": "Imríonn sé peil.", "past": "D'imir sé peil.", "future": "Imreoidh sé peil."},
-    {"en": "run", "ga": "rith", "icon": "🏃",
-     "present": "Ritheann sé go tapa.", "past": "Rith sé go tapa.", "future": "Rithfidh sé go tapa."},
-    {"en": "move", "ga": "bog", "icon": "📦",
-     "present": "Bogann sé an bord.", "past": "Bhog sé an bord.", "future": "Bogfaidh sé an bord."},
-    {"en": "live", "ga": "cónaigh", "icon": "🏙️",
-     "present": "Cónaíonn sé i mBaile Átha Cliath.", "past": "Chónaigh sé i mBaile Átha Cliath.", "future": "Cónóidh sé i mBaile Átha Cliath."},
-    {"en": "believe", "ga": "creid", "icon": "🙏",
-     "present": "Creideann sé an scéal.", "past": "Chreid sé an scéal.", "future": "Creidfidh sé an scéal."},
-    {"en": "bring", "ga": "tabhair leis", "icon": "📘",
-     "present": "Tugann sé leabhar leis.", "past": "Thug sé leabhar leis.", "future": "Tabharfaidh sé leabhar leis."},
-    {"en": "happen", "ga": "tarlaigh", "icon": "✨",
-     "present": "Tarlaíonn sé go minic.", "past": "Tharla sé go minic.", "future": "Tarlóidh sé go minic."},
-    {"en": "write", "ga": "scríobh", "icon": "✉️",
-     "present": "Scríobhann sé litir.", "past": "Scríobh sé litir.", "future": "Scríobhfaidh sé litir."},
-    {"en": "provide", "ga": "soláthair", "icon": "🍞",
-     "present": "Soláthraíonn sé bia.", "past": "Sholáthair sé bia.", "future": "Soláthróidh sé bia."},
-    {"en": "sit", "ga": "suigh", "icon": "🪑",
-     "present": "Suíonn sé síos.", "past": "Shuigh sé síos.", "future": "Suífidh sé síos."},
-    {"en": "stand", "ga": "seas", "icon": "🧍",
-     "present": "Seasann sé suas.", "past": "Sheas sé suas.", "future": "Seasfaidh sé suas."},
-    {"en": "lose", "ga": "caill", "icon": "🏆",
-     "present": "Cailleann sé an cluiche.", "past": "Chaill sé an cluiche.", "future": "Caillfidh sé an cluiche."},
-]
+# Load verb data from course/topic folders
+with open(os.path.join(STATIC_BASE, "irish", "verbs", "data.json"), encoding="utf-8") as _f:
+    VERBS = json.load(_f)
 
-# 50 most popular verbs in Spanish (él/ella form), present / preterite / future.
-SPANISH_VERBS = [
-    {"en": "be", "es": "ser", "icon": "🌟",
-     "present": "Él es estudiante.", "past": "Él fue estudiante.", "future": "Él será estudiante."},
-    {"en": "have", "es": "tener", "icon": "🎒",
-     "present": "Él tiene un libro.", "past": "Él tuvo un libro.", "future": "Él tendrá un libro."},
-    {"en": "do/make", "es": "hacer", "icon": "🛠️",
-     "present": "Él hace la tarea.", "past": "Él hizo la tarea.", "future": "Él hará la tarea."},
-    {"en": "say", "es": "decir", "icon": "💬",
-     "present": "Él dice la verdad.", "past": "Él dijo la verdad.", "future": "Él dirá la verdad."},
-    {"en": "go", "es": "ir", "icon": "🚶",
-     "present": "Él va a casa.", "past": "Él fue a casa.", "future": "Él irá a casa."},
-    {"en": "see", "es": "ver", "icon": "👀",
-     "present": "Él ve el mar.", "past": "Él vio el mar.", "future": "Él verá el mar."},
-    {"en": "give", "es": "dar", "icon": "🎁",
-     "present": "Él da un regalo.", "past": "Él dio un regalo.", "future": "Él dará un regalo."},
-    {"en": "know", "es": "saber", "icon": "🧠",
-     "present": "Él sabe la respuesta.", "past": "Él supo la respuesta.", "future": "Él sabrá la respuesta."},
-    {"en": "want", "es": "querer", "icon": "💧",
-     "present": "Él quiere agua.", "past": "Él quiso agua.", "future": "Él querrá agua."},
-    {"en": "arrive", "es": "llegar", "icon": "🚪",
-     "present": "Él llega tarde.", "past": "Él llegó tarde.", "future": "Él llegará tarde."},
-    {"en": "happen", "es": "pasar", "icon": "✨",
-     "present": "Pasa a menudo.", "past": "Pasó a menudo.", "future": "Pasará a menudo."},
-    {"en": "must/owe", "es": "deber", "icon": "📚",
-     "present": "Él debe estudiar.", "past": "Él debió estudiar.", "future": "Él deberá estudiar."},
-    {"en": "put", "es": "poner", "icon": "📕",
-     "present": "Él pone el libro aquí.", "past": "Él puso el libro aquí.", "future": "Él pondrá el libro aquí."},
-    {"en": "seem", "es": "parecer", "icon": "🤔",
-     "present": "Parece fácil.", "past": "Pareció fácil.", "future": "Parecerá fácil."},
-    {"en": "stay", "es": "quedar", "icon": "🏠",
-     "present": "Él queda en casa.", "past": "Él quedó en casa.", "future": "Él quedará en casa."},
-    {"en": "believe", "es": "creer", "icon": "🙏",
-     "present": "Él cree el cuento.", "past": "Él creyó el cuento.", "future": "Él creerá el cuento."},
-    {"en": "speak", "es": "hablar", "icon": "🗣️",
-     "present": "Él habla español.", "past": "Él habló español.", "future": "Él hablará español."},
-    {"en": "carry", "es": "llevar", "icon": "📦",
-     "present": "Él lleva una mochila.", "past": "Él llevó una mochila.", "future": "Él llevará una mochila."},
-    {"en": "leave/let", "es": "dejar", "icon": "🕊️",
-     "present": "Él deja el trabajo.", "past": "Él dejó el trabajo.", "future": "Él dejará el trabajo."},
-    {"en": "follow", "es": "seguir", "icon": "🚦",
-     "present": "Él sigue el camino.", "past": "Él siguió el camino.", "future": "Él seguirá el camino."},
-    {"en": "find", "es": "encontrar", "icon": "🔑",
-     "present": "Él encuentra la llave.", "past": "Él encontró la llave.", "future": "Él encontrará la llave."},
-    {"en": "call", "es": "llamar", "icon": "📞",
-     "present": "Él llama a su madre.", "past": "Él llamó a su madre.", "future": "Él llamará a su madre."},
-    {"en": "come", "es": "venir", "icon": "🚗",
-     "present": "Él viene aquí.", "past": "Él vino aquí.", "future": "Él vendrá aquí."},
-    {"en": "think", "es": "pensar", "icon": "💭",
-     "present": "Él piensa mucho.", "past": "Él pensó mucho.", "future": "Él pensará mucho."},
-    {"en": "go out", "es": "salir", "icon": "🎡",
-     "present": "Él sale de casa.", "past": "Él salió de casa.", "future": "Él saldrá de casa."},
-    {"en": "return", "es": "volver", "icon": "🔄",
-     "present": "Él vuelve tarde.", "past": "Él volvió tarde.", "future": "Él volverá tarde."},
-    {"en": "take", "es": "tomar", "icon": "☕",
-     "present": "Él toma un café.", "past": "Él tomó un café.", "future": "Él tomará un café."},
-    {"en": "know (person)", "es": "conocer", "icon": "🤝",
-     "present": "Él conoce Madrid.", "past": "Él conoció Madrid.", "future": "Él conocerá Madrid."},
-    {"en": "live", "es": "vivir", "icon": "🏙️",
-     "present": "Él vive en Madrid.", "past": "Él vivió en Madrid.", "future": "Él vivirá en Madrid."},
-    {"en": "feel", "es": "sentir", "icon": "😪",
-     "present": "Él siente cansancio.", "past": "Él sintió cansancio.", "future": "Él sentirá cansancio."},
-    {"en": "try", "es": "tratar", "icon": "🎯",
-     "present": "Él trata de ganar.", "past": "Él trató de ganar.", "future": "Él tratará de ganar."},
-    {"en": "look", "es": "mirar", "icon": "🌌",
-     "present": "Él mira el cielo.", "past": "Él miró el cielo.", "future": "Él mirará el cielo."},
-    {"en": "tell", "es": "contar", "icon": "📖",
-     "present": "Él cuenta un cuento.", "past": "Él contó un cuento.", "future": "Él contará un cuento."},
-    {"en": "begin", "es": "empezar", "icon": "🚀",
-     "present": "Él empieza la tarea.", "past": "Él empezó la tarea.", "future": "Él empezará la tarea."},
-    {"en": "wait", "es": "esperar", "icon": "⏳",
-     "present": "Él espera el autobús.", "past": "Él esperó el autobús.", "future": "Él esperará el autobús."},
-    {"en": "search", "es": "buscar", "icon": "🔍",
-     "present": "Él busca trabajo.", "past": "Él buscó trabajo.", "future": "Él buscará trabajo."},
-    {"en": "exist", "es": "existir", "icon": "⭐",
-     "present": "Existe una solución.", "past": "Existió una solución.", "future": "Existirá una solución."},
-    {"en": "enter", "es": "entrar", "icon": "🏫",
-     "present": "Él entra en clase.", "past": "Él entró en clase.", "future": "Él entrará en clase."},
-    {"en": "work", "es": "trabajar", "icon": "💼",
-     "present": "Él trabaja duro.", "past": "Él trabajó duro.", "future": "Él trabajará duro."},
-    {"en": "write", "es": "escribir", "icon": "✉️",
-     "present": "Él escribe una carta.", "past": "Él escribió una carta.", "future": "Él escribirá una carta."},
-    {"en": "lose", "es": "perder", "icon": "🏆",
-     "present": "Él pierde el partido.", "past": "Él perdió el partido.", "future": "Él perderá el partido."},
-    {"en": "produce", "es": "producir", "icon": "🏭",
-     "present": "Él produce energía.", "past": "Él produjo energía.", "future": "Él producirá energía."},
-    {"en": "occur", "es": "ocurrir", "icon": "🌀",
-     "present": "Ocurre algo raro.", "past": "Ocurrió algo raro.", "future": "Ocurrirá algo raro."},
-    {"en": "understand", "es": "entender", "icon": "💡",
-     "present": "Él entiende bien.", "past": "Él entendió bien.", "future": "Él entenderá bien."},
-    {"en": "ask for", "es": "pedir", "icon": "❓",
-     "present": "Él pide ayuda.", "past": "Él pidió ayuda.", "future": "Él pedirá ayuda."},
-    {"en": "receive", "es": "recibir", "icon": "🎀",
-     "present": "Él recibe una carta.", "past": "Él recibió una carta.", "future": "Él recibirá una carta."},
-    {"en": "remember", "es": "recordar", "icon": "🧩",
-     "present": "Él recuerda todo.", "past": "Él recordó todo.", "future": "Él recordará todo."},
-    {"en": "finish", "es": "terminar", "icon": "🏁",
-     "present": "Él termina pronto.", "past": "Él terminó pronto.", "future": "Él terminará pronto."},
-    {"en": "allow", "es": "permitir", "icon": "🟢",
-     "present": "Él permite entrar.", "past": "Él permitió entrar.", "future": "Él permitirá entrar."},
-    {"en": "appear", "es": "aparecer", "icon": "🌅",
-     "present": "Él aparece tarde.", "past": "Él apareció tarde.", "future": "Él aparecerá tarde."},
-]
+with open(os.path.join(STATIC_BASE, "spanish", "verbs", "data.json"), encoding="utf-8") as _f:
+    SPANISH_VERBS = json.load(_f)
+
+
+def _load_micro_images() -> list[str]:
+  folder = os.path.join(STATIC_BASE, "biology", "micro")
+  if not os.path.isdir(folder):
+    return []
+  allowed = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
+  return sorted(
+    name for name in os.listdir(folder)
+    if os.path.splitext(name)[1].lower() in allowed
+  )
+
+
+BIOLOGY_MICRO_IMAGES = _load_micro_images()
+
+
 
 SUBJECTS = ["English", "Irish", "Maths", "DCG", "Art", "Spanish", "Biology"]
 
@@ -276,44 +90,48 @@ INDEX_HTML = r"""<!doctype html>
   .brand h1{font-size:18px;margin:0;letter-spacing:.2px}
   .brand small{color:var(--muted)}
   nav.tabs{
-    display:flex;gap:6px;overflow-x:auto;padding:10px 20px 14px;
-    scrollbar-width:none;
+    display:flex;gap:6px;overflow-x:auto;padding:10px 16px 14px;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;
   }
   nav.tabs::-webkit-scrollbar{display:none}
   .tab{
     flex:0 0 auto;
-    padding:9px 14px;border-radius:999px;border:1px solid var(--line);
+    padding:11px 16px;border-radius:999px;border:1px solid var(--line);
     background:#fff;color:var(--ink);font-weight:600;font-size:14px;
-    cursor:pointer;transition:.2s ease;
+    cursor:pointer;transition:.2s ease;min-height:44px;
+    -webkit-tap-highlight-color:transparent;
   }
   .tab:hover{transform:translateY(-1px)}
   .tab.active{
     background:linear-gradient(135deg,var(--brand),var(--brand-2));
     color:#fff;border-color:transparent;box-shadow:var(--shadow);
   }
-  main{padding:8px 20px 60px}
+  main{padding:8px 16px 80px}
   .hero{
-    max-width:1100px;margin:14px auto 22px;
-    display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    max-width:1100px;margin:14px auto 18px;
+    display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;
   }
-  .hero h2{margin:0;font-size:28px;letter-spacing:-.2px}
-  .hero p{margin:4px 0 0;color:var(--muted)}
+  .hero h2{margin:0;font-size:26px;letter-spacing:-.2px}
+  .hero p{margin:4px 0 0;color:var(--muted);font-size:14px}
   .hint{
     font-size:13px;color:var(--muted);background:#fff;border:1px solid var(--line);
-    padding:8px 12px;border-radius:999px;box-shadow:var(--shadow);
+    padding:8px 14px;border-radius:999px;box-shadow:var(--shadow);
+    display:none;
   }
+  .hint.visible{display:inline-block}
   .hint b{color:var(--past)}
   .hint i{color:var(--future);font-style:normal}
   .grid{
     max-width:1100px;margin:0 auto;
-    display:grid;gap:18px;
-    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    display:grid;gap:16px;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
   }
   .stage{
-    position:relative;height:230px;border-radius:var(--radius);
+    position:relative;height:220px;border-radius:var(--radius);
     overflow:hidden;
     background:linear-gradient(180deg,#fafbff,#eef1f8);
     border:1px solid var(--line);
+    touch-action:pan-y;
   }
   /* Reveal layers behind the card */
   .reveal{
@@ -367,10 +185,24 @@ INDEX_HTML = r"""<!doctype html>
   }
   .placeholder h3{margin:0 0 6px;color:var(--ink)}
   @media (max-width:520px){
-    .hero h2{font-size:22px}
-    .stage{height:215px}
-    .icon{font-size:54px}
-    .sentence{font-size:16px}
+    .hero{flex-direction:column;align-items:flex-start;gap:8px}
+    .hero h2{font-size:20px}
+    .stage{height:210px}
+    .icon{font-size:50px}
+    .sentence{font-size:15px}
+    .hint{font-size:12px;padding:7px 12px}
+    .modal-body{max-height:72vh}
+    .modal-hero{flex-wrap:wrap;gap:14px;padding:18px}
+    .maths-wrap{gap:22px}
+    .qa-qtext{font-size:14px}
+    .qa-ans{padding:6px 14px 16px 14px}
+    .shelf{gap:20px}
+    .book-wrap{width:140px}
+    .book-cover{width:140px;height:192px}
+  }
+  @media (hover:none){
+    .tab:hover{transform:none}
+    .book-wrap:hover .book-cover{transform:none;box-shadow:4px 6px 20px rgba(15,23,42,.18),-3px 0 0 #c4b5fd inset}
   }  /* ── English purple/violet theme ──────────────────── */
   body.english .tab.active{
     background:linear-gradient(135deg,#7c3aed,#6d28d9);
@@ -481,6 +313,239 @@ INDEX_HTML = r"""<!doctype html>
   body.spanish .pill{background:rgba(249,115,22,.1);color:#c2410c}
   body.spanish .pill.past{background:rgba(14,165,233,.12);color:#0369a1}
   body.spanish .pill.future{background:rgba(16,185,129,.12);color:#047857}
+  /* ── Maths teal theme ─────────────────────────────── */
+  body.maths .tab.active{
+    background:linear-gradient(135deg,#0d9488,#059669);
+    box-shadow:0 0 0 3px rgba(13,148,136,.18),var(--shadow);
+  }
+  .maths-wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+  .maths-section-title{font-size:22px;font-weight:800;color:#134e4a;margin:0 0 4px}
+  .maths-section-sub{color:var(--muted);margin:0 0 18px;font-size:14px}
+  .concept-list{display:flex;flex-direction:column;gap:8px}
+  .concept-item{border:1px solid #99f6e4;border-radius:14px;background:#fff;overflow:hidden}
+  .concept-hdr{
+    display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;
+    font-weight:700;font-size:15px;color:#0f766e;list-style:none;user-select:none;
+  }
+  .concept-hdr::-webkit-details-marker{display:none}
+  .concept-hdr .c-icon{
+    width:36px;height:36px;border-radius:10px;flex-shrink:0;font-size:18px;
+    background:linear-gradient(135deg,#ccfbf1,#99f6e4);display:grid;place-items:center;
+  }
+  .concept-hdr .c-chevron{margin-left:auto;color:#5eead4;transition:transform .22s;font-size:18px}
+  details[open] .concept-hdr .c-chevron{transform:rotate(90deg)}
+  .concept-body{
+    padding:4px 18px 18px 66px;font-size:14px;line-height:1.7;color:var(--ink);
+    border-top:1px solid #f0fdfa;
+  }
+  .formula{
+    background:linear-gradient(135deg,#f0fdfa,#ccfbf1);border:1px solid #99f6e4;
+    border-radius:10px;padding:10px 16px;margin:10px 0;
+    font-family:ui-monospace,monospace;font-size:14px;color:#0f766e;font-weight:600;
+  }
+  .concept-body ul{margin:8px 0;padding-left:18px}
+  .concept-body li{margin:3px 0}
+  .qa-list{display:flex;flex-direction:column;gap:14px}
+  .qa-card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+  .qa-q{padding:16px 20px;cursor:pointer;display:flex;align-items:flex-start;gap:14px;user-select:none}
+  .qa-q:hover{background:#f8fafc}
+  .qa-num{
+    flex-shrink:0;width:28px;height:28px;border-radius:999px;margin-top:2px;
+    background:linear-gradient(135deg,#0d9488,#059669);color:#fff;
+    font-weight:800;font-size:13px;display:grid;place-items:center;
+  }
+  .qa-qtext{flex:1;font-size:15px;font-weight:600;line-height:1.5}
+  .qa-subtext{font-size:12px;color:var(--muted);font-weight:500;margin-top:3px}
+  .qa-toggle{
+    flex-shrink:0;border:none;background:none;color:#0d9488;
+    font-size:24px;cursor:pointer;line-height:1;padding:0;margin-top:-2px;
+    transition:transform .22s ease;
+  }
+  .qa-toggle.open{transform:rotate(45deg)}
+  .qa-ans{
+    display:none;padding:6px 20px 18px 62px;
+    border-top:1px solid #f0fdfa;font-size:14px;line-height:1.7;
+  }
+  .qa-ans.open{display:block}
+  .qa-ans p{margin:8px 0}
+  .qa-ans .step{
+    background:#f0fdfa;border-left:3px solid #0d9488;
+    padding:8px 12px;border-radius:0 8px 8px 0;margin:6px 0;
+  }
+  .qa-ans .step b,.qa-ans .step strong{color:#0f766e}
+  .qa-ans .answer{
+    background:linear-gradient(135deg,#0d9488,#059669);
+    color:#fff;border-radius:10px;padding:10px 16px;margin-top:12px;font-weight:700;
+  }
+  /* ── Biology micro page ───────────────────────────── */
+  .bio-wrap{max-width:1100px;margin:0 auto;display:grid;gap:18px}
+  .bio-banner{
+    background:linear-gradient(135deg,#ecfeff,#f0fdf4);
+    border:1px solid #bae6fd;border-radius:14px;padding:16px 18px;
+  }
+  .bio-banner h3{margin:0 0 4px;color:#134e4a;font-size:20px}
+  .bio-banner p{margin:0;color:#0f766e;font-size:14px}
+  .bio-note-card{
+    background:#fff;border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);padding:14px 16px;
+  }
+  .bio-note-card h4{margin:0 0 8px;color:#0f172a;font-size:16px}
+  .bio-note-line{margin:0 0 6px;color:#334155;font-size:14px;line-height:1.6}
+  .bio-tip{
+    margin:10px 0 0;background:#ecfeff;border-left:3px solid #0891b2;
+    color:#0f766e;padding:8px 10px;border-radius:0 8px 8px 0;font-size:13px;font-weight:700;
+  }
+  .bio-section{
+    display:grid;grid-template-columns:minmax(0,1.35fr) minmax(220px,.9fr);
+    gap:14px;align-items:stretch;
+  }
+  .bio-section--textonly{
+    grid-template-columns:1fr;
+  }
+  .bio-media{
+    margin:0;background:#fff;border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;
+  }
+  .bio-media img{display:block;width:100%;height:100%;min-height:220px;object-fit:cover}
+  .bio-media figcaption{padding:8px 10px;font-size:12px;color:#475569;background:#fff}
+  .bio-media .bio-media-tag{
+    margin-top:auto;padding:8px 10px;background:#f8fafc;border-top:1px solid var(--line);
+    font-size:12px;color:#0f766e;font-weight:700;
+  }
+  .bio-row{display:grid;gap:14px}
+  .bio-row + .bio-row{margin-top:2px}
+  .bio-empty{
+    max-width:1100px;margin:18px auto 0;background:#fff7ed;color:#9a3412;
+    border:1px solid #fed7aa;border-radius:12px;padding:12px 14px;font-size:14px;
+  }
+  @media (max-width:760px){
+    .bio-section{grid-template-columns:1fr}
+  }
+  /* ── Art impressionism page ──────────────────────── */
+  body.art .tab.active{
+    background:linear-gradient(135deg,#f59e0b,#ea580c);
+    box-shadow:0 0 0 3px rgba(245,158,11,.16),var(--shadow);
+  }
+  .art-wrap{max-width:1100px;margin:0 auto;display:grid;gap:18px}
+  .art-banner{
+    background:linear-gradient(135deg,#fff7ed,#fffbeb);
+    border:1px solid #fed7aa;border-radius:16px;padding:16px 18px;
+  }
+  .art-banner h3{margin:0 0 4px;color:#7c2d12;font-size:20px}
+  .art-banner p{margin:0;color:#9a3412;font-size:14px;line-height:1.6}
+  .art-compare{
+    display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;
+  }
+  .art-side{
+    background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);
+    padding:16px;
+  }
+  .art-side h4{margin:0 0 6px;font-size:17px}
+  .art-side p{margin:0 0 10px;color:#334155;line-height:1.6;font-size:14px}
+  .art-side .kicker{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.35px;margin-bottom:8px}
+  .art-light .kicker{color:#0f766e}
+  .art-structure .kicker{color:#7c2d12}
+  .art-vs{display:grid;place-items:center;min-width:72px}
+  .art-vs .vs-bubble{
+    width:64px;height:64px;border-radius:999px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#fde68a,#fb923c);color:#7c2d12;font-weight:900;
+    box-shadow:var(--shadow);border:1px solid #fdba74;
+  }
+  .art-bar{height:12px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:10px 0 0}
+  .art-bar > span{display:block;height:100%;border-radius:999px}
+  .art-bar.impressionism > span{width:78%;background:linear-gradient(90deg,#14b8a6,#38bdf8)}
+  .art-bar.post > span{width:86%;background:linear-gradient(90deg,#f97316,#ef4444)}
+  .art-chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .art-chip{padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#f8fafc;color:#334155;border:1px solid #e2e8f0}
+  .art-panel{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px}
+  .art-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+  .art-card{background:linear-gradient(180deg,#fff,#fffaf2);border:1px solid #fee2b3;border-radius:14px;padding:14px}
+  .art-card h4{margin:0 0 8px;font-size:16px;color:#7c2d12}
+  .art-card p{margin:0;color:#334155;font-size:14px;line-height:1.6}
+  .art-artist{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .art-artist .badge{
+    width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+    background:#ffedd5;color:#c2410c;font-size:18px;flex-shrink:0;
+  }
+  .art-quote{
+    background:linear-gradient(135deg,#fff7ed,#fffbeb);border-left:3px solid #f59e0b;
+    padding:10px 12px;border-radius:0 10px 10px 0;font-size:13px;font-weight:700;color:#9a3412;
+  }
+  .art-comparison{display:grid;gap:10px;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center}
+  .art-step{
+    background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 8px;text-align:center;
+    font-size:12px;color:#334155;font-weight:700;min-height:72px;display:grid;place-items:center;
+  }
+  .art-step em{display:block;font-style:normal;color:#7c2d12;font-weight:800;margin-top:4px}
+  .art-mini-arrow{color:#fb923c;font-weight:900;font-size:22px;text-align:center}
+  .art-small-title{font-size:19px;font-weight:800;color:#7c2d12;margin:0 0 4px}
+  .art-small-sub{margin:0 0 12px;color:var(--muted);font-size:14px}
+  @media (max-width:760px){
+    .art-compare,.art-comparison{grid-template-columns:1fr}
+    .art-vs{min-width:0}
+    .art-mini-arrow{transform:rotate(90deg)}
+  }
+  /* ── DCG dynamic mechanisms page ─────────────────── */
+  body.dcg .tab.active{
+    background:linear-gradient(135deg,#2563eb,#0f766e);
+    box-shadow:0 0 0 3px rgba(37,99,235,.15),var(--shadow);
+  }
+  .dcg-wrap{max-width:1100px;margin:0 auto;display:grid;gap:18px}
+  .dcg-banner{
+    background:linear-gradient(135deg,#eff6ff,#ecfeff);
+    border:1px solid #bfdbfe;border-radius:16px;padding:16px 18px;
+  }
+  .dcg-banner h3{margin:0 0 4px;color:#0f172a;font-size:20px}
+  .dcg-banner p{margin:0;color:#334155;font-size:14px;line-height:1.6}
+  .dcg-flow{
+    display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center;
+  }
+  .dcg-node{
+    background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+    padding:14px 12px;text-align:center;min-height:96px;display:grid;place-items:center;gap:6px;
+  }
+  .dcg-node .label{font-size:12px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.35px}
+  .dcg-node .value{font-size:16px;font-weight:800;color:#0f172a}
+  .dcg-arrow{font-size:30px;color:#0ea5e9;font-weight:800}
+  .dcg-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+  .dcg-card{
+    background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+    padding:14px 14px 12px;
+  }
+  .dcg-card h4{margin:0 0 8px;font-size:16px;color:#0f172a}
+  .dcg-card p{margin:0 0 8px;color:#334155;font-size:14px;line-height:1.6}
+  .dcg-chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .dcg-chip{padding:5px 10px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:700}
+  .dcg-motion-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+  .dcg-motion{
+    background:linear-gradient(180deg,#ffffff,#f8fbff);
+    border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;
+  }
+  .dcg-motion .motion-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+  .dcg-motion .motion-top strong{font-size:15px;color:#0f172a}
+  .dcg-motion .motion-badge{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:#dbeafe;color:#1d4ed8;font-size:18px}
+  .dcg-mini-arrow{display:block;text-align:center;color:#94a3b8;font-weight:800;margin:8px 0;font-size:18px}
+  .dcg-example-rail{
+    display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  }
+  .dcg-example{
+    background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;
+  }
+  .dcg-example .example-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .dcg-example .example-head strong{font-size:15px;color:#0f172a}
+  .dcg-example .example-icon{font-size:22px}
+  .dcg-seq{display:grid;gap:8px;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;margin-top:10px}
+  .dcg-step{
+    background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 8px;text-align:center;
+    font-size:12px;color:#334155;font-weight:700;min-height:70px;display:grid;place-items:center;
+  }
+  .dcg-step em{display:block;font-style:normal;color:#0f172a;font-weight:800;margin-top:4px}
+  .dcg-section-title{font-size:19px;font-weight:800;color:#0f172a;margin:0 0 4px}
+  .dcg-section-sub{margin:0 0 12px;color:var(--muted);font-size:14px}
+  @media (max-width:760px){
+    .dcg-flow,.dcg-seq{grid-template-columns:1fr;}
+    .dcg-arrow,.dcg-mini-arrow{transform:rotate(90deg);font-size:24px}
+  }
 </style>
 </head>
 <body>
@@ -489,7 +554,7 @@ INDEX_HTML = r"""<!doctype html>
     <div class="logo">L</div>
     <div>
       <h1>Léann · Study</h1>
-      <small>A clean, simple way to learn.</small>
+      <small>A simpler way to learn.</small>
     </div>
   </div>
   <nav class="tabs" id="tabs"></nav>
@@ -501,7 +566,7 @@ INDEX_HTML = r"""<!doctype html>
       <h2 id="title">Gaeilge — 50 Verbs</h2>
       <p id="subtitle">Default card shows the present tense.</p>
     </div>
-    <div class="hint">Slide <b>→ right</b> for past · Slide <i>← left</i> for future</div>
+    <div class="hint" id="swipeHint">Slide <b>→ right</b> for past · Slide <i>← left</i> for future</div>
   </section>
   <section id="content" class="grid"></section>
 </main>
@@ -525,6 +590,7 @@ INDEX_HTML = r"""<!doctype html>
 const SUBJECTS = __SUBJECTS__;
 const VERBS = __VERBS__;
 const SPANISH_VERBS = __SPANISH_VERBS__;
+const BIOLOGY_MICRO_IMAGES = __BIOLOGY_MICRO_IMAGES__;
 
 const tabs = document.getElementById('tabs');
 const content = document.getElementById('content');
@@ -537,8 +603,8 @@ const ENGLISH_BOOKS = [
   {
     title: 'Purple Hibiscus',
     author: 'Chimamanda Ngozi Adichie',
-    cover: '/english/purple_hibiscus.jpg',
-    notes: '/english/purple_hibiscus.txt',
+    cover: '/english/purple_hibiscus/cover.jpg',
+    notes: '/english/purple_hibiscus/notes.txt',
   },
 ];
 
@@ -621,10 +687,474 @@ function parseNotes(txt){
   return html;
 }
 
+function escapeHtml(s){
+  return s
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function titleFromFilename(name){
+  return name
+    .replace(/\.[^.]+$/, '')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function bioImageForTitle(title){
+  const t = title.toLowerCase();
+  if(t.includes('bacterial cell structure')) return 'bacterial_cell.jpeg';
+  if(t.includes('virus structure')) return 'virus.jpeg';
+  if(t.includes('yeast cell')) return 'yeast_cell.jpeg';
+  if(t.includes('microscopic plant vs animal cell')) return 'animal_plant_cell.jpeg';
+  if(t.includes('bacterial reproduction')) return 'bacterial_cell.jpeg';
+  return null;
+}
+
+function buildMicroPage(txt){
+  const blocks = txt.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
+  let html = '<div class="bio-wrap">';
+  html += '<section class="bio-banner"><h3>Mircobiology — One Pager</h3>';
+  html += '<p>Built from your micro notes and diagram set.</p></section>';
+
+  blocks.forEach(block => {
+    const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+    if(!lines.length) return;
+    const first = lines[0];
+    const imageName = bioImageForTitle(first);
+    html += '<section class="bio-row">';
+    html += '<div class="bio-section' + (imageName ? '' : ' bio-section--textonly') + '">';
+    html += '<section class="bio-note-card">';
+    html += '<h4>' + escapeHtml(first) + '</h4>';
+    lines.slice(1).forEach(line => {
+      if(/^\d+$/.test(line)) return;
+      if(line.startsWith('👉')){
+        html += '<div class="bio-tip">' + escapeHtml(line) + '</div>';
+      } else {
+        html += '<p class="bio-note-line">' + escapeHtml(line) + '</p>';
+      }
+    });
+    html += '</section>';
+
+    if(imageName){
+      const safeName = encodeURIComponent(imageName);
+      const caption = titleFromFilename(imageName);
+      html += '<figure class="bio-media">';
+      html += '<img loading="lazy" src="/biology/micro/' + safeName + '" alt="' + escapeHtml(caption) + '" />';
+      html += '<figcaption>' + escapeHtml(caption) + '</figcaption>';
+      html += '<div class="bio-media-tag">Matched visual for this cell type</div>';
+      html += '</figure>';
+    }
+
+    html += '</div></section>';
+  });
+
+  html += '</div>';
+  return html;
+}
+
+function renderBiology(){
+  title.textContent = 'Biology — Mircobiology';
+  subtitle.textContent = 'One-page revision from micro.txt and your microbiology images.';
+  content.className = '';
+  content.innerHTML = '<div class="bio-empty">Loading microbiology notes…</div>';
+  fetch('/biology/micro/micro.txt')
+    .then(r => {
+      if(!r.ok) throw new Error('missing notes');
+      return r.text();
+    })
+    .then(txt => { content.innerHTML = buildMicroPage(txt); })
+    .catch(() => {
+      content.innerHTML = '<div class="bio-empty">Could not load biology/micro.txt.</div>';
+    });
+}
+
+function buildArtPage(txt){
+  let html = '<div class="art-wrap">';
+  html += '<section class="art-banner">';
+  html += '<h3>Impressionism vs Post-Impressionism</h3>';
+  html += '<p>This one-pager turns the notes into a quick visual comparison: light vs structure, observation vs interpretation, and the artists most likely to appear in exams.</p>';
+  html += '</section>';
+
+  html += '<section class="art-compare">';
+  html += '<article class="art-side art-light">';
+  html += '<div class="kicker">Impressionism</div>';
+  html += '<h4>Capture a moment in time</h4>';
+  html += '<p>Think <strong>light</strong>, <strong>colour</strong> and <strong>atmosphere</strong>. Artists painted outdoors and used loose, visible brushstrokes.</p>';
+  html += '<div class="art-bar impressionism"><span></span></div>';
+  html += '<div class="art-chip-row">';
+  ['Plein air', 'Loose brushwork', 'Natural light', 'Everyday scenes'].forEach(chip => html += '<span class="art-chip">' + chip + '</span>');
+  html += '</div></article>';
+  html += '<div class="art-vs"><div class="vs-bubble">VS</div></div>';
+  html += '<article class="art-side art-structure">';
+  html += '<div class="kicker">Post-Impressionism</div>';
+  html += '<h4>More emotion, structure and meaning</h4>';
+  html += '<p>Think <strong>bold shapes</strong>, <strong>expressive colour</strong> and more personal interpretation. It reacts against pure observation.</p>';
+  html += '<div class="art-bar post"><span></span></div>';
+  html += '<div class="art-chip-row">';
+  ['Structure', 'Emotion', 'Symbolic meaning', 'Personal interpretation'].forEach(chip => html += '<span class="art-chip">' + chip + '</span>');
+  html += '</div></article>';
+  html += '</section>';
+
+  html += '<section class="art-panel">';
+  html += '<div class="art-small-title">Quick visual comparison</div>';
+  html += '<p class="art-small-sub">Use this sequence in answers to show how the two styles differ.</p>';
+  html += '<div class="art-comparison">';
+  html += '<div class="art-step">Light, air, moment<em>Impressionism</em></div>';
+  html += '<div class="art-mini-arrow">→</div>';
+  html += '<div class="art-step">Brushstroke, shape, colour<em>How it is painted</em></div>';
+  html += '<div class="art-mini-arrow">→</div>';
+  html += '<div class="art-step">Emotion, symbol, meaning<em>Post-Impressionism</em></div>';
+  html += '</div>';
+  html += '</section>';
+
+  html += '<section class="art-panel">';
+  html += '<div class="art-small-title">Key artists</div>';
+  html += '<div class="art-grid">';
+  [
+    {icon:'🌤️', name:'Claude Monet', text:'Painted the same scene at different times to show changing light and atmosphere.'},
+    {icon:'💃', name:'Edgar Degas', text:'Focused on dancers, movement and unusual viewpoints.'},
+    {icon:'🌾', name:'Pierre-Auguste Renoir', text:'Used soft, warm colours for social scenes and people enjoying life.'},
+    {icon:'🌋', name:'Vincent van Gogh', text:'Used swirling brushwork and intense colour to express emotion.'},
+    {icon:'🧱', name:'Paul Cézanne', text:'Built forms with geometric shapes and influenced Cubism.'},
+    {icon:'🌺', name:'Paul Gauguin', text:'Used symbolic colour and simplified scenes with stronger meaning.'},
+  ].forEach(item => {
+    html += '<article class="art-card">';
+    html += '<div class="art-artist"><div class="badge">' + item.icon + '</div><h4>' + item.name + '</h4></div>';
+    html += '<p>' + item.text + '</p>';
+    html += '</article>';
+  });
+  html += '</div></section>';
+
+  html += '<section class="art-panel">';
+  html += '<div class="art-small-title">Exam phrases and memory trick</div>';
+  html += '<div class="art-quote">“capture the impression of light” · “momentary effects of atmosphere” · “art based on emotion rather than observation”</div>';
+  html += '<div class="art-chip-row">';
+  ['Impressionism = I see light', 'Post-Impressionism = I feel it', 'Mention an artist', 'Mention a subject'].forEach(chip => html += '<span class="art-chip">' + chip + '</span>');
+  html += '</div>';
+  html += '</section>';
+
+  html += '</div>';
+  return html;
+}
+
+function renderArt(){
+  title.textContent = 'Art — Impressionism vs Post-Impressionism';
+  subtitle.textContent = 'Simple comparison visuals built from the impressionism notes.';
+  content.className = '';
+  content.innerHTML = '<div class="bio-empty">Loading art notes…</div>';
+  fetch('/art/impressionism/impressionism_vs_post_impressionism.txt')
+    .then(r => {
+      if(!r.ok) throw new Error('missing notes');
+      return r.text();
+    })
+    .then(txt => { content.innerHTML = buildArtPage(txt); })
+    .catch(() => {
+      content.innerHTML = '<div class="bio-empty">Could not load art/impressionism/impressionism_vs_post_impressionism.txt.</div>';
+    });
+}
+
+function parseDcgSections(txt){
+  return txt.split(/\n\s*\n/).map(block => block.trim()).filter(Boolean).map(block => {
+    const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+    return {
+      title: lines[0] || '',
+      body: lines.slice(1),
+    };
+  });
+}
+
+function renderDCGSection(section){
+  const title = section.title.toLowerCase();
+  if(title.startsWith('in simple terms')) return '';
+  if(title.startsWith('what “dynamic” means')) return '';
+  if(title.startsWith('the main idea')) return '';
+  return '';
+}
+
+function buildDCGPage(txt){
+  const sections = parseDcgSections(txt);
+  let html = '<div class="dcg-wrap">';
+  html += '<section class="dcg-banner">';
+  html += '<h3>Dynamic Mechanisms</h3>';
+  html += '<p>A dynamic mechanism is a moving system that changes one type of motion into another. The visuals below show input motion, the mechanism, and the output motion in one glance.</p>';
+  html += '</section>';
+
+  html += '<section class="dcg-card">';
+  html += '<div class="dcg-section-title">Motion flow</div>';
+  html += '<p class="dcg-section-sub">Think: input motion → mechanism → output motion.</p>';
+  html += '<div class="dcg-flow">';
+  html += '<div class="dcg-node"><span class="label">Input</span><span class="value">What you do</span><span>Pedals, motor, push</span></div>';
+  html += '<div class="dcg-arrow">→</div>';
+  html += '<div class="dcg-node"><span class="label">Mechanism</span><span class="value">Moving parts</span><span>Gears, cams, linkages</span></div>';
+  html += '<div class="dcg-arrow">→</div>';
+  html += '<div class="dcg-node"><span class="label">Output</span><span class="value">What it makes happen</span><span>Spin, lift, sweep, slide</span></div>';
+  html += '</div></section>';
+
+  html += '<section><div class="dcg-section-title">Motion types</div>';
+  html += '<p class="dcg-section-sub">The exam usually wants you to name the motion before and after the mechanism acts on it.</p>';
+  html += '<div class="dcg-motion-grid">';
+  [
+    {icon:'🌀', title:'Rotary motion', text:'Spinning motion like a wheel, gear, or motor shaft.', tag:'Spin'},
+    {icon:'➡️', title:'Linear motion', text:'Straight-line motion like a drawer sliding or a push.', tag:'Straight line'},
+    {icon:'↔️', title:'Reciprocating motion', text:'Back-and-forth in a straight line, like a piston.', tag:'Back and forth'},
+    {icon:'〰️', title:'Oscillating motion', text:'Back-and-forth in an arc, like a pendulum or wiper.', tag:'Swing'},
+  ].forEach(item => {
+    html += '<article class="dcg-motion">';
+    html += '<div class="motion-top"><strong>' + item.title + '</strong><span class="motion-badge">' + item.icon + '</span></div>';
+    html += '<p>' + item.text + '</p>';
+    html += '<div class="dcg-chip-row"><span class="dcg-chip">' + item.tag + '</span></div>';
+    html += '</article>';
+  });
+  html += '</div></section>';
+
+  html += '<section><div class="dcg-section-title">Common examples</div>';
+  html += '<p class="dcg-section-sub">Each example shows the motion change as a simple three-step visual.</p>';
+  html += '<div class="dcg-example-rail">';
+  [
+    {icon:'🚲', title:'Bicycle gears', a:'Legs turn pedals', b:'Gears transfer motion', c:'Wheel turns faster or slower', hint:'Changes speed and force'},
+    {icon:'🪟', title:'Windscreen wipers', a:'Motor spins', b:'Linkage changes the motion', c:'Wipers sweep across the screen', hint:'Circular → oscillating'},
+    {icon:'🚪', title:'Door hinge', a:'Push the door', b:'Hinge controls rotation', c:'Door rotates open', hint:'Linear → rotary'},
+  ].forEach(item => {
+    html += '<article class="dcg-example">';
+    html += '<div class="example-head"><strong>' + item.title + '</strong><span class="example-icon">' + item.icon + '</span></div>';
+    html += '<div class="dcg-seq">';
+    html += '<div class="dcg-step">Input<em>' + item.a + '</em></div>';
+    html += '<div class="dcg-mini-arrow">→</div>';
+    html += '<div class="dcg-step">Mechanism<em>' + item.b + '</em></div>';
+    html += '<div class="dcg-mini-arrow">→</div>';
+    html += '<div class="dcg-step">Output<em>' + item.c + '</em></div>';
+    html += '</div>';
+    html += '<div class="bio-tip" style="margin-top:12px">' + item.hint + '</div>';
+    html += '</article>';
+  });
+  html += '</div></section>';
+
+  html += '<section><div class="dcg-section-title">Key mechanism cards</div>';
+  html += '<div class="dcg-grid">';
+  [
+    {title:'Crank and slider', body:'Used in engines. Rotary motion is changed into reciprocating motion.', chips:['Engine pistons', 'Rotary → reciprocating']},
+    {title:'Cam and follower', body:'A cam is a shaped rotating piece. As it turns, the follower moves up and down.', chips:['Very important', 'Rotary → up/down']},
+    {title:'Gear system', body:'Gears transfer motion and change speed, force, or direction.', chips:['Speed change', 'Direction change']},
+    {title:'Linkages', body:'Connected bars can change the direction of motion or make movement smoother.', chips:['Change direction', 'Controlled movement']},
+  ].forEach(item => {
+    html += '<article class="dcg-card">';
+    html += '<h4>' + item.title + '</h4>';
+    html += '<p>' + item.body + '</p>';
+    html += '<div class="dcg-chip-row">' + item.chips.map(chip => '<span class="dcg-chip">' + chip + '</span>').join('') + '</div>';
+    html += '</article>';
+  });
+  html += '</div></section>';
+
+  html += '<section class="dcg-card">';
+  html += '<h4>Exam sentence</h4>';
+  html += '<p>“A dynamic mechanism is a system of moving parts that transmits and transforms motion from an input motion to an output motion.”</p>';
+  html += '<div class="bio-tip">Move in → mechanism → different move out</div>';
+  html += '</section>';
+
+  html += '</div>';
+  return html;
+}
+
+function renderDCG(){
+  title.textContent = 'DCG — Dynamic Mechanisms';
+  subtitle.textContent = 'Simple motion visuals built from dynamic_mechanisms.txt.';
+  content.className = '';
+  content.innerHTML = '<div class="bio-empty">Loading dynamic mechanisms…</div>';
+  fetch('/dcg/dynamic_mechanisms.txt')
+    .then(r => {
+      if(!r.ok) throw new Error('missing notes');
+      return r.text();
+    })
+    .then(txt => { content.innerHTML = buildDCGPage(txt); })
+    .catch(() => {
+      content.innerHTML = '<div class="bio-empty">Could not load dcg/dynamic_mechanisms.txt.</div>';
+    });
+}
+
+function renderMaths(){
+  title.textContent = 'Maths — Statistics & Probability';
+  subtitle.textContent = 'Interactive guide · Leaving Certificate Ordinary Level';
+  content.className = '';
+
+  const CONCEPTS = [
+    {icon:'📊', name:'Mean (Average)',
+     formula:'Mean = Σx ÷ n',
+     body:'Add all values together, then divide by the number of values. The mean is the most common average but can be affected by very large or small numbers (outliers).',
+     tips:['Add all values first to find Σx','Then divide by n (the count of values)','The mean is sensitive to outliers — the median may be more appropriate']},
+    {icon:'📏', name:'Median',
+     formula:'Middle value when data is arranged in order',
+     body:'Sort all values from smallest to largest. The median is the middle value. If there is an even number of values, find the mean of the two middle values.',
+     tips:['Always sort the data first','For n values: median position = ½(n + 1)','The median is NOT affected by outliers']},
+    {icon:'🎯', name:'Mode',
+     formula:'The value that appears most often in the data set',
+     body:'The mode is the most frequently occurring value. A data set can have no mode, one mode, or multiple modes.',
+     tips:['Easiest to spot from a frequency table — look for the highest frequency','A data set can have more than one mode','Useful for categorical or discrete data']},
+    {icon:'📐', name:'Range & Interquartile Range (IQR)',
+     formula:'Range = Max − Min      IQR = Q₃ − Q₁',
+     body:'The range measures overall spread. The IQR measures the spread of the middle 50% of the data, making it resistant to outliers.',
+     tips:['Range = largest value minus smallest value','Q₁ = lower quartile (25th %), Q₃ = upper quartile (75th %)','A smaller IQR means the data is more consistent']},
+    {icon:'📋', name:'Frequency Tables',
+     formula:'Mean = Σ(f × x) ÷ Σf',
+     body:'A frequency table records how often each value occurs. To find the mean, multiply each value (x) by its frequency (f), sum those products, then divide by the total frequency.',
+     tips:['Σf = total number of data items — always verify this matches the given total','The mode is the value with the highest frequency','Use columns: x | f | f×x — then sum each column']},
+    {icon:'🎲', name:'Basic Probability',
+     formula:'P(A) = Number of favourable outcomes ÷ Total number of outcomes',
+     body:'Probability is always between 0 (impossible) and 1 (certain). The sample space S is the list of all possible outcomes. Always count carefully before calculating.',
+     tips:['List the full sample space before calculating','0 ≤ P(A) ≤ 1 always','P(A) = n(A) ÷ n(S)']},
+    {icon:'🔄', name:'Complementary Events',
+     formula:"P(A') = 1 − P(A)",
+     body:"The complement of A is everything that is NOT A. Their probabilities always add to 1. Especially useful for 'at least one' questions.",
+     tips:['"At least one" → use 1 − P(none at all)','P(A) + P(not A) = 1 always','Use this when the complement is simpler to calculate']},
+    {icon:'⛔', name:'Mutually Exclusive Events',
+     formula:'P(A or B) = P(A) + P(B)',
+     body:'Events A and B are mutually exclusive if they cannot both happen at the same time. For example, a single card cannot be both a heart and a club.',
+     tips:['Cannot happen simultaneously — P(A and B) = 0','Simply add their individual probabilities','Example: rolling a 3 or a 5 on one die']},
+    {icon:'⚙️', name:'Independent Events',
+     formula:'P(A and B) = P(A) × P(B)',
+     body:'Events are independent if the outcome of one has no effect on the other. Draw a tree diagram to organise outcomes and multiply along the branches.',
+     tips:['Outcomes do not affect each other','Multiply the individual probabilities','Tree diagrams: multiply along branches, add between branches']},
+    {icon:'🪙', name:'Bernoulli Trials',
+     formula:'P(X = r) = C(n,r) × pʳ × qⁿ⁻ʳ     where q = 1 − p',
+     body:'A Bernoulli trial has exactly two outcomes: success (probability p) or failure (q = 1 − p). When the trial is repeated n times, use the binomial formula. C(n,r) = n! ÷ (r! × (n−r)!)',
+     tips:['Identify n (trials), r (successes needed), p (probability of success)','q = 1 − p (probability of failure)','C(n,r) = n! ÷ (r!(n−r)!) — Pascals Triangle is a useful shortcut']},
+    {icon:'💡', name:'Expected Value',
+     formula:'E(X) = Σ [ x × P(x) ]',
+     body:'The expected value is the long-run average outcome. Multiply each possible outcome by its probability, then sum all results. A game is fair if E(X) equals the cost to play.',
+     tips:['List all outcomes and their probabilities first','Multiply each outcome by its probability then add all results','If E(X) > cost to play, the game favours the player']},
+  ];
+
+  const QS = [
+    {num:1, topic:'Measures of Central Tendency',
+     q:'The marks of 9 students in a test are: 45, 67, 52, 78, 67, 89, 45, 67, 90.<br>Find: (a) the mode &nbsp; (b) the median &nbsp; (c) the mean &nbsp; (d) the range.',
+     ans:'<p><strong>First, sort the data:</strong> 45, 45, 52, 67, 67, 67, 78, 89, 90</p>'+
+         '<div class="step"><strong>(a) Mode</strong> — most frequent value: <strong>67</strong> (appears 3 times)</div>'+
+         '<div class="step"><strong>(b) Median</strong> — 9 values so median = 5th value: <strong>67</strong></div>'+
+         '<div class="step"><strong>(c) Mean</strong> — Σx = 45+45+52+67+67+67+78+89+90 = 600<br>Mean = 600 ÷ 9 ≈ <strong>66.7</strong></div>'+
+         '<div class="step"><strong>(d) Range</strong> = 90 − 45 = <strong>45</strong></div>'+
+         '<div class="answer">Mode = 67 &nbsp;·&nbsp; Median = 67 &nbsp;·&nbsp; Mean ≈ 66.7 &nbsp;·&nbsp; Range = 45</div>'},
+    {num:2, topic:'Frequency Tables',
+     q:'Goals scored by a football team in 20 matches:<br><br>'+
+       '<table style="border-collapse:collapse;font-size:13px;margin:4px 0">'+
+       '<tr><td style="padding:4px 14px;background:#f0fdfa;font-weight:700">Goals</td>'+
+       '<td style="padding:4px 12px;background:#f0fdfa">0</td><td style="padding:4px 12px;background:#f0fdfa">1</td>'+
+       '<td style="padding:4px 12px;background:#f0fdfa">2</td><td style="padding:4px 12px;background:#f0fdfa">3</td>'+
+       '<td style="padding:4px 12px;background:#f0fdfa">4</td></tr>'+
+       '<tr><td style="padding:4px 14px;font-weight:700">Frequency</td>'+
+       '<td style="padding:4px 12px">2</td><td style="padding:4px 12px">5</td>'+
+       '<td style="padding:4px 12px">8</td><td style="padding:4px 12px">3</td>'+
+       '<td style="padding:4px 12px">2</td></tr></table><br>'+
+       'Find: (a) the modal number of goals &nbsp; (b) the mean number of goals per match.',
+     ans:'<div class="step"><strong>(a) Mode</strong> — highest frequency is 8, which corresponds to <strong>2 goals</strong></div>'+
+         '<div class="step"><strong>(b) Mean</strong> — calculate Σ(f×x):<br>'+
+         '(0×2)+(1×5)+(2×8)+(3×3)+(4×2) = 0+5+16+9+8 = 38<br>'+
+         'Σf = 2+5+8+3+2 = 20<br>Mean = 38 ÷ 20 = <strong>1.9 goals per match</strong></div>'+
+         '<div class="answer">Mode = 2 goals &nbsp;·&nbsp; Mean = 1.9 goals per match</div>'},
+    {num:3, topic:'Basic Probability',
+     q:'A bag contains 4 red, 3 blue and 5 green balls. One ball is picked at random.<br>Find: (a) P(red) &nbsp; (b) P(blue) &nbsp; (c) P(not green) &nbsp; (d) P(red or blue)',
+     ans:'<div class="step"><strong>Total balls</strong> = 4 + 3 + 5 = <strong>12</strong></div>'+
+         '<div class="step"><strong>(a) P(red)</strong> = 4/12 = <strong>1/3</strong></div>'+
+         '<div class="step"><strong>(b) P(blue)</strong> = 3/12 = <strong>1/4</strong></div>'+
+         '<div class="step"><strong>(c) P(not green)</strong> = 1 − 5/12 = <strong>7/12</strong></div>'+
+         '<div class="step"><strong>(d) P(red or blue)</strong> — mutually exclusive, so add:<br>4/12 + 3/12 = <strong>7/12</strong></div>'+
+         '<div class="answer">P(red)=1/3 &nbsp;·&nbsp; P(blue)=1/4 &nbsp;·&nbsp; P(not green)=7/12 &nbsp;·&nbsp; P(red or blue)=7/12</div>'},
+    {num:4, topic:'Two Dice — Sample Space',
+     q:'Two fair dice are thrown. Find the probability that:<br>(a) the sum equals 8 &nbsp; (b) both dice show the same number &nbsp; (c) the sum is greater than 9',
+     ans:'<div class="step"><strong>Total outcomes</strong> = 6 × 6 = <strong>36</strong></div>'+
+         '<div class="step"><strong>(a) Sum = 8:</strong> (2,6),(3,5),(4,4),(5,3),(6,2) → 5 outcomes<br>P = <strong>5/36</strong></div>'+
+         '<div class="step"><strong>(b) Doubles:</strong> (1,1),(2,2),(3,3),(4,4),(5,5),(6,6) → 6 outcomes<br>P = 6/36 = <strong>1/6</strong></div>'+
+         '<div class="step"><strong>(c) Sum &gt; 9:</strong> Sum=10: (4,6),(5,5),(6,4) · Sum=11: (5,6),(6,5) · Sum=12: (6,6) → 6 outcomes<br>P = 6/36 = <strong>1/6</strong></div>'+
+         '<div class="answer">P(sum=8)=5/36 &nbsp;·&nbsp; P(doubles)=1/6 &nbsp;·&nbsp; P(sum&gt;9)=1/6</div>'},
+    {num:5, topic:'Complementary Events',
+     q:'The probability of rain on any day in June is 0.35. Two days are chosen at random.<br>(a) Find P(no rain on a given day).<br>(b) Find P(rain on at least one of the two days).',
+     ans:'<div class="step"><strong>(a) P(no rain)</strong> = 1 − 0.35 = <strong>0.65</strong></div>'+
+         '<div class="step"><strong>(b) “At least one”</strong> → use complement:<br>P(no rain on either day) = 0.65 × 0.65 = 0.4225<br>P(rain on at least one day) = 1 − 0.4225 = <strong>0.5775</strong></div>'+
+         '<div class="answer">P(no rain) = 0.65 &nbsp;·&nbsp; P(rain on at least one day) = 0.5775</div>'},
+    {num:6, topic:'Playing Cards',
+     q:'A card is drawn at random from a standard deck of 52 cards. Find:<br>(a) P(heart) &nbsp; (b) P(king) &nbsp; (c) P(heart or king) &nbsp; (d) P(red card)',
+     ans:'<div class="step"><strong>(a) P(heart)</strong> = 13/52 = <strong>1/4</strong> &nbsp;(13 hearts in the deck)</div>'+
+         '<div class="step"><strong>(b) P(king)</strong> = 4/52 = <strong>1/13</strong> &nbsp;(4 kings in the deck)</div>'+
+         '<div class="step"><strong>(c) P(heart or king)</strong> — NOT mutually exclusive (king of hearts is both):<br>P = 13/52 + 4/52 − 1/52 = <strong>16/52 = 4/13</strong></div>'+
+         '<div class="step"><strong>(d) P(red card)</strong> = 26/52 = <strong>1/2</strong> &nbsp;(hearts + diamonds = 26 red cards)</div>'+
+         '<div class="answer">P(heart)=1/4 &nbsp;·&nbsp; P(king)=1/13 &nbsp;·&nbsp; P(heart or king)=4/13 &nbsp;·&nbsp; P(red)=1/2</div>'},
+    {num:7, topic:'Independent Events',
+     q:'P(Aoife passes maths) = 0.7. P(Ciarán passes maths) = 0.6. The tests are independent.<br>Find the probability that: (a) both pass &nbsp; (b) both fail &nbsp; (c) at least one passes',
+     ans:'<div class="step"><strong>Failures:</strong> P(Aoife fails) = 0.3 &nbsp;·&nbsp; P(Ciarán fails) = 0.4</div>'+
+         '<div class="step"><strong>(a) Both pass</strong> = 0.7 × 0.6 = <strong>0.42</strong></div>'+
+         '<div class="step"><strong>(b) Both fail</strong> = 0.3 × 0.4 = <strong>0.12</strong></div>'+
+         '<div class="step"><strong>(c) At least one passes</strong> = 1 − P(both fail) = 1 − 0.12 = <strong>0.88</strong></div>'+
+         '<div class="answer">P(both pass)=0.42 &nbsp;·&nbsp; P(both fail)=0.12 &nbsp;·&nbsp; P(at least one)=0.88</div>'},
+    {num:8, topic:'Bernoulli Trials',
+     q:'A biased coin has P(heads) = 0.6. The coin is tossed 5 times.<br>Find the probability of: (a) exactly 3 heads &nbsp; (b) at least 4 heads',
+     ans:'<div class="step"><strong>Setup:</strong> n = 5, p = 0.6, q = 0.4 &nbsp;·&nbsp; Formula: P(X=r) = C(n,r) × p<sup>r</sup> × q<sup>n−r</sup></div>'+
+         '<div class="step"><strong>(a) P(X = 3):</strong><br>C(5,3) = 10<br>P = 10 × 0.6<sup>3</sup> × 0.4<sup>2</sup> = 10 × 0.216 × 0.16 = <strong>0.3456</strong></div>'+
+         '<div class="step"><strong>(b) P(X ≥ 4) = P(X=4) + P(X=5):</strong><br>P(X=4) = C(5,4) × 0.6<sup>4</sup> × 0.4 = 5 × 0.1296 × 0.4 = 0.2592<br>P(X=5) = 1 × 0.6<sup>5</sup> = 0.07776<br>P(X≥4) = 0.2592 + 0.07776 = <strong>0.3370</strong></div>'+
+         '<div class="answer">P(exactly 3 heads) = 0.3456 &nbsp;·&nbsp; P(at least 4 heads) ≈ 0.337</div>'},
+    {num:9, topic:'Expected Value',
+     q:'A game costs €3 to play. You roll a fair die and win:<br>• €10 if you roll a 6 &nbsp;• €4 if you roll a 5 &nbsp;• €0 otherwise<br><br>(a) Find the expected winnings per game. &nbsp; (b) Is the game fair?',
+     ans:'<div class="step"><strong>Outcomes:</strong> Win €10 (P=1/6) &nbsp;·&nbsp; Win €4 (P=1/6) &nbsp;·&nbsp; Win €0 (P=4/6)</div>'+
+         '<div class="step"><strong>(a) E(winnings)</strong> = (10×1/6) + (4×1/6) + (0×4/6) = 10/6 + 4/6 = 14/6 ≈ <strong>€2.33</strong></div>'+
+         '<div class="step"><strong>Net</strong> = €2.33 − €3.00 (cost) = <strong>−€0.67</strong></div>'+
+         '<div class="step"><strong>(b)</strong> A game is fair when E(winnings) = cost to play.<br>Here €2.33 &lt; €3.00 so the game is <strong>NOT fair</strong> — you expect to lose €0.67 per game on average.</div>'+
+         '<div class="answer">E(winnings) ≈ €2.33 &nbsp;·&nbsp; Net per game = −€0.67 &nbsp;·&nbsp; NOT a fair game</div>'},
+    {num:10, topic:'Venn Diagrams & Conditional Probability',
+     q:'In a class of 30 students, 18 study French and 14 study German. 6 study both languages.<br>(a) How many study French only? &nbsp;(b) How many study neither language?<br>(c) Find P(a randomly chosen student studies French).<br>(d) Given a student studies German, find P(they also study French).',
+     ans:'<div class="step"><strong>Venn diagram:</strong> French only = 18−6 = 12 &nbsp;·&nbsp; Both = 6 &nbsp;·&nbsp; German only = 14−6 = 8<br>Total in at least one language = 12+6+8 = 26</div>'+
+         '<div class="step"><strong>(a) French only</strong> = 18 − 6 = <strong>12</strong></div>'+
+         '<div class="step"><strong>(b) Neither</strong> = 30 − 26 = <strong>4</strong></div>'+
+         '<div class="step"><strong>(c) P(French)</strong> = 18/30 = <strong>3/5</strong></div>'+
+         '<div class="step"><strong>(d) Conditional probability</strong> — restricted to German students (14):<br>P(French | German) = 6/14 = <strong>3/7</strong></div>'+
+         '<div class="answer">French only=12 &nbsp;·&nbsp; Neither=4 &nbsp;·&nbsp; P(French)=3/5 &nbsp;·&nbsp; P(French|German)=3/7</div>'},
+  ];
+
+  let h = '<div class="maths-wrap">';
+  h += '<div><div class="maths-section-title">📖 Key Concepts</div>';
+  h += '<p class="maths-section-sub">Click any concept to expand the explanation and formula.</p>';
+  h += '<div class="concept-list">';
+  CONCEPTS.forEach(c => {
+    h += '<details class="concept-item"><summary class="concept-hdr">';
+    h += '<span class="c-icon">' + c.icon + '</span><span>' + c.name + '</span>';
+    h += '<span class="c-chevron">›</span></summary>';
+    h += '<div class="concept-body"><p>' + c.body + '</p>';
+    h += '<div class="formula">' + c.formula + '</div>';
+    h += '<ul>' + c.tips.map(t => '<li>' + t + '</li>').join('') + '</ul>';
+    h += '</div></details>';
+  });
+  h += '</div></div>';
+  h += '<div><div class="maths-section-title">✏️ Practice Questions</div>';
+  h += '<p class="maths-section-sub">LC Ordinary Level style — tap a question to reveal the full worked solution.</p>';
+  h += '<div class="qa-list">';
+  QS.forEach(q => {
+    h += '<div class="qa-card"><div class="qa-q">';
+    h += '<span class="qa-num">' + q.num + '</span>';
+    h += '<div class="qa-qtext">' + q.q + '<div class="qa-subtext">Topic: ' + q.topic + '</div></div>';
+    h += '<button class="qa-toggle" aria-label="Show answer">+</button></div>';
+    h += '<div class="qa-ans">' + q.ans + '</div></div>';
+  });
+  h += '</div></div></div>';
+  content.innerHTML = h;
+
+  content.querySelectorAll('.qa-q').forEach(row => {
+    row.addEventListener('click', () => {
+      const ans = row.nextElementSibling;
+      const btn = row.querySelector('.qa-toggle');
+      const isOpen = ans.classList.toggle('open');
+      btn.classList.toggle('open', isOpen);
+    });
+  });
+}
+
 function renderTabs(){
   if(active === 'Spanish') document.body.className = 'spanish';
   else if(active === 'English') document.body.className = 'english';
+  else if(active === 'Art') document.body.className = 'art';
+  else if(active === 'DCG') document.body.className = 'dcg';
+  else if(active === 'Maths') document.body.className = 'maths';
   else document.body.className = '';
+  const hint = document.getElementById('swipeHint');
+  if(hint) hint.classList.toggle('visible', active==='Irish'||active==='Spanish');
   tabs.innerHTML = '';
   SUBJECTS.forEach(s => {
     const b = document.createElement('button');
@@ -636,6 +1166,9 @@ function renderTabs(){
 }
 
 function renderContent(){
+  if(active === 'Maths'){
+    renderMaths(); return;
+  }
   if(active === 'English'){
     title.textContent = 'English — Books & Notes';
     subtitle.textContent = 'Tap a book to open your study notes.';
@@ -676,13 +1209,25 @@ function renderContent(){
     ));
     return;
   }
+  if(active === 'Biology'){
+    renderBiology();
+    return;
+  }
+  if(active === 'Art'){
+    renderArt();
+    return;
+  }
+  if(active === 'DCG'){
+    renderDCG();
+    return;
+  }
   title.textContent = active;
-  subtitle.textContent = 'Coming soon — try Irish or Spanish.';
+  subtitle.textContent = 'Coming soon — try Irish, Spanish, Biology, Art, or DCG.';
   content.className = '';
   content.innerHTML = `
     <div class="placeholder">
       <h3>${active} is on the way</h3>
-      <p>Tap <b>Irish</b> or <b>Spanish</b> to study the 50 most popular verbs.</p>
+      <p>Tap <b>Irish</b>, <b>Spanish</b>, <b>Biology</b>, <b>Art</b>, or <b>DCG</b> to study the topic pages.</p>
     </div>`;
 }
 
@@ -836,6 +1381,7 @@ class Handler(BaseHTTPRequestHandler):
                 .replace("__SUBJECTS__", json.dumps(SUBJECTS))
                 .replace("__VERBS__", json.dumps(VERBS, ensure_ascii=False))
                 .replace("__SPANISH_VERBS__", json.dumps(SPANISH_VERBS, ensure_ascii=False))
+              .replace("__BIOLOGY_MICRO_IMAGES__", json.dumps(BIOLOGY_MICRO_IMAGES, ensure_ascii=False))
             )
             self._send(200, html.encode("utf-8"), "text/html; charset=utf-8")
             return
@@ -850,7 +1396,7 @@ class Handler(BaseHTTPRequestHandler):
         safe = self.path.lstrip("/")
         # Only allow alphanumeric, dash, underscore, dot, slash
         import re as _re
-        if _re.match(r'^[a-zA-Z0-9_\-\.]+/[a-zA-Z0-9_\-\.]+$', safe):
+        if _re.match(r'^[a-zA-Z0-9_\-]+(?:/[a-zA-Z0-9_\-\.]+){1,2}$', safe):
             fpath = os.path.join(STATIC_BASE, safe)
             if os.path.isfile(fpath):
                 ctype, _ = mimetypes.guess_type(fpath)

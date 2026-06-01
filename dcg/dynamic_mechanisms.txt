@@ -1,0 +1,62 @@
+Dynamic Mechanisms (Leaving Cert D.C.G.) – Simple Explanation
+In Design and Communication Graphics, a dynamic mechanism is a machine or system that uses moving parts to change one type of motion into another.
+In simple terms:
+A dynamic mechanism is something that moves and makes something else move in a controlled way.
+What “dynamic” means
+Dynamic = moving
+So dynamic mechanisms are machines with motion, not static drawings.
+They are used to:
+transmit motion
+change speed
+change direction
+change type of motion
+The main idea
+A dynamic mechanism usually has:
+an input motion (what you do to it)
+a mechanism (the moving parts inside)
+an output motion (what it produces)
+Easy examples
+1. Bicycle gears
+Your legs turn the pedals (input)
+Gears transfer the motion
+The wheel turns faster or slower (output)
+👉 Changes speed and force
+2. Car windscreen wipers
+A motor spins in circles
+Linkages change circular motion into back-and-forth motion
+Wipers sweep across the screen
+👉 Changes circular motion into oscillating motion
+3. Door hinge
+You push the door (linear motion)
+It rotates around the hinge
+👉 Changes linear motion into rotary motion
+Types of motion you need to know
+In exams, you often describe how mechanisms change motion:
+Rotary motion → spinning (like wheels)
+Linear motion → straight line (like a drawer sliding)
+Reciprocating motion → back and forth in a straight line (like a piston)
+Oscillating motion → back and forth in an arc (like a pendulum)
+Common exam mechanisms
+You should recognise these:
+Crank and slider mechanism (engine pistons)
+Cam and follower (turning motion into lifting motion)
+Gear systems (speed changes)
+Linkages (changing direction of motion)
+Cam and follower (very important)
+A cam is a shaped rotating piece.
+A follower moves up and down when the cam turns.
+👉 Used in:
+car engines
+automatic machines
+toys
+Why they are important in DCG exams
+You are often asked to:
+describe motion changes
+draw labelled diagrams
+explain input/output motion
+identify mechanisms in real-life objects
+Simple exam sentence you can use
+“A dynamic mechanism is a system of moving parts that transmits and transforms motion from an input motion to an output motion.”
+Quick memory trick
+Think:
+“Move in → mechanism → different move out”
