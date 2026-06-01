@@ -179,12 +179,14 @@ INDEX_HTML = r"""<!doctype html>
   .pill.future{background:rgba(16,185,129,.12);color:#047857}
   .arrows{margin-left:auto;color:#cbd5e1;font-size:12px}
   .reset-btn{
-    display:none;align-self:flex-end;margin-top:2px;
+    display:inline-flex;align-self:flex-end;margin-top:2px;
     border:none;border-radius:999px;padding:6px 10px;
     background:#eef2ff;color:#3730a3;font-size:11px;font-weight:800;
     cursor:pointer;-webkit-tap-highlight-color:transparent;
+    opacity:.5;
   }
-  .reset-btn.visible{display:inline-flex}
+  .reset-btn.active{opacity:1}
+  .reset-btn:disabled{cursor:default}
   .placeholder{
     max-width:1100px;margin:40px auto;text-align:center;color:var(--muted);
     background:#fff;border:1px dashed var(--line);border-radius:var(--radius);
@@ -610,8 +612,8 @@ const ENGLISH_BOOKS = [
   {
     title: 'Purple Hibiscus',
     author: 'Chimamanda Ngozi Adichie',
-    cover: '/english/purple_hibiscus/cover.jpg',
-    notes: '/english/purple_hibiscus/notes.txt',
+    cover: 'english/purple_hibiscus/cover.jpg',
+    notes: 'english/purple_hibiscus/notes.txt',
   },
 ];
 
@@ -749,7 +751,7 @@ function buildMicroPage(txt){
       const safeName = encodeURIComponent(imageName);
       const caption = titleFromFilename(imageName);
       html += '<figure class="bio-media">';
-      html += '<img loading="lazy" src="/biology/micro/' + safeName + '" alt="' + escapeHtml(caption) + '" />';
+      html += '<img loading="lazy" src="biology/micro/' + safeName + '" alt="' + escapeHtml(caption) + '" />';
       html += '<figcaption>' + escapeHtml(caption) + '</figcaption>';
       html += '<div class="bio-media-tag">Matched visual for this cell type</div>';
       html += '</figure>';
@@ -767,7 +769,7 @@ function renderBiology(){
   subtitle.textContent = 'One-page revision from micro.txt and your microbiology images.';
   content.className = '';
   content.innerHTML = '<div class="bio-empty">Loading microbiology notes…</div>';
-  fetch('/biology/micro/micro.txt')
+  fetch('biology/micro/micro.txt')
     .then(r => {
       if(!r.ok) throw new Error('missing notes');
       return r.text();
@@ -852,7 +854,7 @@ function renderArt(){
   subtitle.textContent = 'Simple comparison visuals built from the impressionism notes.';
   content.className = '';
   content.innerHTML = '<div class="bio-empty">Loading art notes…</div>';
-  fetch('/art/impressionism/impressionism_vs_post_impressionism.txt')
+  fetch('art/impressionism/impressionism_vs_post_impressionism.txt')
     .then(r => {
       if(!r.ok) throw new Error('missing notes');
       return r.text();
@@ -970,7 +972,7 @@ function renderDCG(){
   subtitle.textContent = 'Simple motion visuals built from dynamic_mechanisms.txt.';
   content.className = '';
   content.innerHTML = '<div class="bio-empty">Loading dynamic mechanisms…</div>';
-  fetch('/dcg/dynamic_mechanisms.txt')
+  fetch('dcg/dynamic_mechanisms.txt')
     .then(r => {
       if(!r.ok) throw new Error('missing notes');
       return r.text();
@@ -1296,7 +1298,9 @@ function attachSwipe(stage){
       pill.textContent = presLabel;
       pill.className='pill';
     }
-    resetBtn.classList.toggle('visible', t !== 'present');
+    const canReset = t !== 'present';
+    resetBtn.disabled = !canReset;
+    resetBtn.classList.toggle('active', canReset);
   }
 
   function onDown(e){
@@ -1378,6 +1382,7 @@ function attachSwipe(stage){
     pastLayer.style.opacity = 0;
     futureLayer.style.opacity = 0;
   });
+  setTense('present');
   card.addEventListener('dblclick', ()=> setTense('present'));
 }
 
