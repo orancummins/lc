@@ -1266,12 +1266,14 @@ function attachSwipe(stage){
   const futureLayer = stage.querySelector('.reveal.future');
 
   let startX=0, dx=0, dragging=false, locked=null;
+  let currentTense = 'present';
   const THRESHOLD = 70;
 
   function setTense(t){
     const pastLabel = card.dataset.pastLabel;
     const futLabel  = card.dataset.futLabel;
     const presLabel = card.dataset.presLabel;
+    currentTense = t;
     if(t==='past'){
       sentence.textContent = sentence.dataset.past;
       pill.textContent = pastLabel;
@@ -1338,6 +1340,12 @@ function attachSwipe(stage){
           futureLayer.style.opacity = 0;
         });
       }, 220);
+    } else if(currentTense !== 'present' && Math.abs(dx) > 16){
+      // Short swipe back toward center restores the present tense
+      setTense('present');
+      card.style.transform = 'translateX(0) rotate(0)';
+      pastLayer.style.opacity = 0;
+      futureLayer.style.opacity = 0;
     } else {
       card.style.transform = 'translateX(0) rotate(0)';
       pastLayer.style.opacity = 0;
@@ -1353,7 +1361,10 @@ function attachSwipe(stage){
   card.addEventListener('touchmove', onMove, {passive:false});
   card.addEventListener('touchend', onUp);
 
-  // Tap to reset to present
+  // Tap or double-click to reset to present once you've swiped away from it
+  card.addEventListener('click', ()=> {
+    if(currentTense !== 'present') setTense('present');
+  });
   card.addEventListener('dblclick', ()=> setTense('present'));
 }
 
