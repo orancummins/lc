@@ -178,6 +178,13 @@ INDEX_HTML = r"""<!doctype html>
   .pill.past{background:rgba(14,165,233,.12);color:#0369a1}
   .pill.future{background:rgba(16,185,129,.12);color:#047857}
   .arrows{margin-left:auto;color:#cbd5e1;font-size:12px}
+  .reset-btn{
+    display:none;align-self:flex-end;margin-top:2px;
+    border:none;border-radius:999px;padding:6px 10px;
+    background:#eef2ff;color:#3730a3;font-size:11px;font-weight:800;
+    cursor:pointer;-webkit-tap-highlight-color:transparent;
+  }
+  .reset-btn.visible{display:inline-flex}
   .placeholder{
     max-width:1100px;margin:40px auto;text-align:center;color:var(--muted);
     background:#fff;border:1px dashed var(--line);border-radius:var(--radius);
@@ -1253,6 +1260,7 @@ function buildCard(v, n, opts){
         <span class="pill" data-pill>Present</span>
         <span class="arrows">← future · past →</span>
       </div>
+      <button type="button" class="reset-btn" data-reset>Back to present</button>
     </article>`;
   attachSwipe(stage);
   return stage;
@@ -1262,6 +1270,7 @@ function attachSwipe(stage){
   const card = stage.querySelector('.card');
   const sentence = stage.querySelector('.sentence');
   const pill = stage.querySelector('[data-pill]');
+  const resetBtn = stage.querySelector('[data-reset]');
   const pastLayer = stage.querySelector('.reveal.past');
   const futureLayer = stage.querySelector('.reveal.future');
 
@@ -1287,6 +1296,7 @@ function attachSwipe(stage){
       pill.textContent = presLabel;
       pill.className='pill';
     }
+    resetBtn.classList.toggle('visible', t !== 'present');
   }
 
   function onDown(e){
@@ -1361,9 +1371,12 @@ function attachSwipe(stage){
   card.addEventListener('touchmove', onMove, {passive:false});
   card.addEventListener('touchend', onUp);
 
-  // Tap or double-click to reset to present once you've swiped away from it
-  card.addEventListener('click', ()=> {
-    if(currentTense !== 'present') setTense('present');
+  resetBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    setTense('present');
+    card.style.transform = 'translateX(0) rotate(0)';
+    pastLayer.style.opacity = 0;
+    futureLayer.style.opacity = 0;
   });
   card.addEventListener('dblclick', ()=> setTense('present'));
 }
