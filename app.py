@@ -150,7 +150,7 @@ INDEX_HTML = r"""<!doctype html>
     position:absolute;inset:0;
     background:var(--card);border-radius:var(--radius);
     box-shadow:var(--shadow);
-    padding:18px 18px 16px;
+    padding:18px 18px 44px;
     display:flex;flex-direction:column;gap:10px;
     cursor:grab;user-select:none;touch-action:pan-y;
     transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .2s;
@@ -179,14 +179,15 @@ INDEX_HTML = r"""<!doctype html>
   .pill.future{background:rgba(16,185,129,.12);color:#047857}
   .arrows{margin-left:auto;color:#cbd5e1;font-size:12px}
   .reset-btn{
-    display:inline-flex;align-self:flex-end;margin-top:2px;
-    border:none;border-radius:999px;padding:6px 10px;
-    background:#eef2ff;color:#3730a3;font-size:11px;font-weight:800;
+    position:absolute;right:10px;bottom:10px;
+    display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid #c7d2fe;border-radius:999px;padding:6px 10px;
+    background:#eef2ff;color:#312e81;font-size:11px;font-weight:900;
     cursor:pointer;-webkit-tap-highlight-color:transparent;
-    opacity:.5;
+    opacity:.85;box-shadow:0 1px 2px rgba(15,23,42,.08);
   }
-  .reset-btn.active{opacity:1}
-  .reset-btn:disabled{cursor:default}
+  .reset-btn.active{opacity:1;background:#e0e7ff;border-color:#a5b4fc}
+  .reset-btn:disabled{cursor:default;opacity:.78}
   .placeholder{
     max-width:1100px;margin:40px auto;text-align:center;color:var(--muted);
     background:#fff;border:1px dashed var(--line);border-radius:var(--radius);
