@@ -7,7 +7,11 @@ Then open http://localhost:2009
 from __future__ import annotations
 
 import json
+import mimetypes
+import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+STATIC_BASE = os.path.dirname(os.path.abspath(__file__))
 
 PORT = 2009
 
@@ -114,6 +118,110 @@ VERBS = [
      "present": "Seasann sé suas.", "past": "Sheas sé suas.", "future": "Seasfaidh sé suas."},
     {"en": "lose", "ga": "caill", "icon": "🏆",
      "present": "Cailleann sé an cluiche.", "past": "Chaill sé an cluiche.", "future": "Caillfidh sé an cluiche."},
+]
+
+# 50 most popular verbs in Spanish (él/ella form), present / preterite / future.
+SPANISH_VERBS = [
+    {"en": "be", "es": "ser", "icon": "🌟",
+     "present": "Él es estudiante.", "past": "Él fue estudiante.", "future": "Él será estudiante."},
+    {"en": "have", "es": "tener", "icon": "🎒",
+     "present": "Él tiene un libro.", "past": "Él tuvo un libro.", "future": "Él tendrá un libro."},
+    {"en": "do/make", "es": "hacer", "icon": "🛠️",
+     "present": "Él hace la tarea.", "past": "Él hizo la tarea.", "future": "Él hará la tarea."},
+    {"en": "say", "es": "decir", "icon": "💬",
+     "present": "Él dice la verdad.", "past": "Él dijo la verdad.", "future": "Él dirá la verdad."},
+    {"en": "go", "es": "ir", "icon": "🚶",
+     "present": "Él va a casa.", "past": "Él fue a casa.", "future": "Él irá a casa."},
+    {"en": "see", "es": "ver", "icon": "👀",
+     "present": "Él ve el mar.", "past": "Él vio el mar.", "future": "Él verá el mar."},
+    {"en": "give", "es": "dar", "icon": "🎁",
+     "present": "Él da un regalo.", "past": "Él dio un regalo.", "future": "Él dará un regalo."},
+    {"en": "know", "es": "saber", "icon": "🧠",
+     "present": "Él sabe la respuesta.", "past": "Él supo la respuesta.", "future": "Él sabrá la respuesta."},
+    {"en": "want", "es": "querer", "icon": "💧",
+     "present": "Él quiere agua.", "past": "Él quiso agua.", "future": "Él querrá agua."},
+    {"en": "arrive", "es": "llegar", "icon": "🚪",
+     "present": "Él llega tarde.", "past": "Él llegó tarde.", "future": "Él llegará tarde."},
+    {"en": "happen", "es": "pasar", "icon": "✨",
+     "present": "Pasa a menudo.", "past": "Pasó a menudo.", "future": "Pasará a menudo."},
+    {"en": "must/owe", "es": "deber", "icon": "📚",
+     "present": "Él debe estudiar.", "past": "Él debió estudiar.", "future": "Él deberá estudiar."},
+    {"en": "put", "es": "poner", "icon": "📕",
+     "present": "Él pone el libro aquí.", "past": "Él puso el libro aquí.", "future": "Él pondrá el libro aquí."},
+    {"en": "seem", "es": "parecer", "icon": "🤔",
+     "present": "Parece fácil.", "past": "Pareció fácil.", "future": "Parecerá fácil."},
+    {"en": "stay", "es": "quedar", "icon": "🏠",
+     "present": "Él queda en casa.", "past": "Él quedó en casa.", "future": "Él quedará en casa."},
+    {"en": "believe", "es": "creer", "icon": "🙏",
+     "present": "Él cree el cuento.", "past": "Él creyó el cuento.", "future": "Él creerá el cuento."},
+    {"en": "speak", "es": "hablar", "icon": "🗣️",
+     "present": "Él habla español.", "past": "Él habló español.", "future": "Él hablará español."},
+    {"en": "carry", "es": "llevar", "icon": "📦",
+     "present": "Él lleva una mochila.", "past": "Él llevó una mochila.", "future": "Él llevará una mochila."},
+    {"en": "leave/let", "es": "dejar", "icon": "🕊️",
+     "present": "Él deja el trabajo.", "past": "Él dejó el trabajo.", "future": "Él dejará el trabajo."},
+    {"en": "follow", "es": "seguir", "icon": "🚦",
+     "present": "Él sigue el camino.", "past": "Él siguió el camino.", "future": "Él seguirá el camino."},
+    {"en": "find", "es": "encontrar", "icon": "🔑",
+     "present": "Él encuentra la llave.", "past": "Él encontró la llave.", "future": "Él encontrará la llave."},
+    {"en": "call", "es": "llamar", "icon": "📞",
+     "present": "Él llama a su madre.", "past": "Él llamó a su madre.", "future": "Él llamará a su madre."},
+    {"en": "come", "es": "venir", "icon": "🚗",
+     "present": "Él viene aquí.", "past": "Él vino aquí.", "future": "Él vendrá aquí."},
+    {"en": "think", "es": "pensar", "icon": "💭",
+     "present": "Él piensa mucho.", "past": "Él pensó mucho.", "future": "Él pensará mucho."},
+    {"en": "go out", "es": "salir", "icon": "🎡",
+     "present": "Él sale de casa.", "past": "Él salió de casa.", "future": "Él saldrá de casa."},
+    {"en": "return", "es": "volver", "icon": "🔄",
+     "present": "Él vuelve tarde.", "past": "Él volvió tarde.", "future": "Él volverá tarde."},
+    {"en": "take", "es": "tomar", "icon": "☕",
+     "present": "Él toma un café.", "past": "Él tomó un café.", "future": "Él tomará un café."},
+    {"en": "know (person)", "es": "conocer", "icon": "🤝",
+     "present": "Él conoce Madrid.", "past": "Él conoció Madrid.", "future": "Él conocerá Madrid."},
+    {"en": "live", "es": "vivir", "icon": "🏙️",
+     "present": "Él vive en Madrid.", "past": "Él vivió en Madrid.", "future": "Él vivirá en Madrid."},
+    {"en": "feel", "es": "sentir", "icon": "😪",
+     "present": "Él siente cansancio.", "past": "Él sintió cansancio.", "future": "Él sentirá cansancio."},
+    {"en": "try", "es": "tratar", "icon": "🎯",
+     "present": "Él trata de ganar.", "past": "Él trató de ganar.", "future": "Él tratará de ganar."},
+    {"en": "look", "es": "mirar", "icon": "🌌",
+     "present": "Él mira el cielo.", "past": "Él miró el cielo.", "future": "Él mirará el cielo."},
+    {"en": "tell", "es": "contar", "icon": "📖",
+     "present": "Él cuenta un cuento.", "past": "Él contó un cuento.", "future": "Él contará un cuento."},
+    {"en": "begin", "es": "empezar", "icon": "🚀",
+     "present": "Él empieza la tarea.", "past": "Él empezó la tarea.", "future": "Él empezará la tarea."},
+    {"en": "wait", "es": "esperar", "icon": "⏳",
+     "present": "Él espera el autobús.", "past": "Él esperó el autobús.", "future": "Él esperará el autobús."},
+    {"en": "search", "es": "buscar", "icon": "🔍",
+     "present": "Él busca trabajo.", "past": "Él buscó trabajo.", "future": "Él buscará trabajo."},
+    {"en": "exist", "es": "existir", "icon": "⭐",
+     "present": "Existe una solución.", "past": "Existió una solución.", "future": "Existirá una solución."},
+    {"en": "enter", "es": "entrar", "icon": "🏫",
+     "present": "Él entra en clase.", "past": "Él entró en clase.", "future": "Él entrará en clase."},
+    {"en": "work", "es": "trabajar", "icon": "💼",
+     "present": "Él trabaja duro.", "past": "Él trabajó duro.", "future": "Él trabajará duro."},
+    {"en": "write", "es": "escribir", "icon": "✉️",
+     "present": "Él escribe una carta.", "past": "Él escribió una carta.", "future": "Él escribirá una carta."},
+    {"en": "lose", "es": "perder", "icon": "🏆",
+     "present": "Él pierde el partido.", "past": "Él perdió el partido.", "future": "Él perderá el partido."},
+    {"en": "produce", "es": "producir", "icon": "🏭",
+     "present": "Él produce energía.", "past": "Él produjo energía.", "future": "Él producirá energía."},
+    {"en": "occur", "es": "ocurrir", "icon": "🌀",
+     "present": "Ocurre algo raro.", "past": "Ocurrió algo raro.", "future": "Ocurrirá algo raro."},
+    {"en": "understand", "es": "entender", "icon": "💡",
+     "present": "Él entiende bien.", "past": "Él entendió bien.", "future": "Él entenderá bien."},
+    {"en": "ask for", "es": "pedir", "icon": "❓",
+     "present": "Él pide ayuda.", "past": "Él pidió ayuda.", "future": "Él pedirá ayuda."},
+    {"en": "receive", "es": "recibir", "icon": "🎀",
+     "present": "Él recibe una carta.", "past": "Él recibió una carta.", "future": "Él recibirá una carta."},
+    {"en": "remember", "es": "recordar", "icon": "🧩",
+     "present": "Él recuerda todo.", "past": "Él recordó todo.", "future": "Él recordará todo."},
+    {"en": "finish", "es": "terminar", "icon": "🏁",
+     "present": "Él termina pronto.", "past": "Él terminó pronto.", "future": "Él terminará pronto."},
+    {"en": "allow", "es": "permitir", "icon": "🟢",
+     "present": "Él permite entrar.", "past": "Él permitió entrar.", "future": "Él permitirá entrar."},
+    {"en": "appear", "es": "aparecer", "icon": "🌅",
+     "present": "Él aparece tarde.", "past": "Él apareció tarde.", "future": "Él aparecerá tarde."},
 ]
 
 SUBJECTS = ["English", "Irish", "Maths", "DCG", "Art", "Spanish", "Biology"]
@@ -263,7 +371,116 @@ INDEX_HTML = r"""<!doctype html>
     .stage{height:215px}
     .icon{font-size:54px}
     .sentence{font-size:16px}
+  }  /* ── English purple/violet theme ──────────────────── */
+  body.english .tab.active{
+    background:linear-gradient(135deg,#7c3aed,#6d28d9);
+    box-shadow:0 0 0 3px rgba(124,58,237,.18),var(--shadow);
   }
+  /* Bookshelf */
+  .shelf{
+    max-width:1100px;margin:0 auto;
+    display:flex;flex-wrap:wrap;gap:28px;
+  }
+  .book-wrap{
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    cursor:pointer;width:160px;
+  }
+  .book-wrap:hover .book-cover{transform:translateY(-6px) scale(1.03);box-shadow:0 20px 48px rgba(124,58,237,.22);}
+  .book-cover{
+    width:160px;height:220px;border-radius:8px;
+    object-fit:cover;display:block;
+    box-shadow:4px 6px 20px rgba(15,23,42,.18), -3px 0 0 #c4b5fd inset;
+    transition:transform .3s ease,box-shadow .3s ease;
+  }
+  .book-label{
+    font-size:13px;font-weight:700;color:var(--ink);text-align:center;line-height:1.3;
+  }
+  .book-label small{display:block;font-weight:400;color:var(--muted);font-size:11px;margin-top:2px}
+  /* Modal reader */
+  .modal-bg{
+    position:fixed;inset:0;z-index:100;
+    background:rgba(15,23,42,.55);
+    backdrop-filter:blur(6px);
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:24px 16px 40px;
+    overflow-y:auto;
+    opacity:0;pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .modal-bg.open{opacity:1;pointer-events:auto;}
+  .modal{
+    background:#fff;border-radius:20px;
+    box-shadow:0 30px 80px rgba(15,23,42,.25);
+    width:100%;max-width:740px;
+    overflow:hidden;
+    transform:translateY(20px);
+    transition:transform .28s cubic-bezier(.2,.8,.2,1);
+  }
+  .modal-bg.open .modal{transform:translateY(0);}
+  .modal-hero{
+    display:flex;gap:22px;align-items:flex-end;
+    padding:28px 28px 22px;
+    background:linear-gradient(135deg,#ede9fe,#f5f3ff);
+    border-bottom:1px solid #e9d5ff;
+  }
+  .modal-cover{
+    width:90px;height:124px;object-fit:cover;
+    border-radius:6px;box-shadow:3px 4px 14px rgba(124,58,237,.25);
+    flex-shrink:0;
+  }
+  .modal-meta h2{margin:0 0 4px;font-size:20px;color:#3b0764}
+  .modal-meta p{margin:0;color:#7e22ce;font-size:13px;font-weight:600}
+  .modal-close{
+    margin-left:auto;align-self:flex-start;
+    background:rgba(124,58,237,.12);border:none;border-radius:999px;
+    color:#6d28d9;font-size:20px;line-height:1;
+    width:36px;height:36px;cursor:pointer;
+    display:grid;place-items:center;
+    transition:background .2s;
+  }
+  .modal-close:hover{background:rgba(124,58,237,.22);}
+  .modal-body{
+    padding:26px 28px 32px;
+    max-height:68vh;overflow-y:auto;
+    font-size:15px;line-height:1.7;color:var(--ink);
+  }
+  .modal-body::-webkit-scrollbar{width:4px}
+  .modal-body::-webkit-scrollbar-thumb{background:#c4b5fd;border-radius:4px}
+  .notes-section{margin:0 0 22px}
+  .notes-h1{
+    font-size:19px;font-weight:800;color:#3b0764;
+    margin:28px 0 10px;padding-bottom:6px;
+    border-bottom:2px solid #e9d5ff;
+  }
+  .notes-h1:first-child{margin-top:0}
+  .notes-h2{font-size:15px;font-weight:700;color:#6d28d9;margin:16px 0 6px}
+  .notes-p{margin:0 0 8px}
+  .notes-ul{margin:0 0 10px;padding-left:20px}
+  .notes-ul li{margin:2px 0}
+  .exam-tip{
+    background:linear-gradient(135deg,#fdf4ff,#f5f3ff);
+    border-left:3px solid #a855f7;
+    padding:10px 14px;border-radius:0 8px 8px 0;
+    margin:10px 0 14px;font-size:13px;font-weight:600;color:#581c87;
+  }
+  .exam-tip::before{content:'📝 Exam Point: ';font-weight:800}
+  .quote-block{
+    background:#fdf4ff;border:1px solid #e9d5ff;
+    border-radius:10px;padding:12px 16px;margin:10px 0;
+    font-style:italic;color:#4c1d95;font-size:14px;
+  }  /* ── Spanish orange theme ────────────────────────── */
+  body.spanish .tab.active{
+    background:linear-gradient(135deg,#f97316,#ea580c);
+    box-shadow:0 0 0 3px rgba(249,115,22,.18),var(--shadow);
+  }
+  body.spanish .stage{
+    border-color:rgba(249,115,22,.28);
+    box-shadow:0 0 0 1px rgba(249,115,22,.12),0 8px 28px rgba(249,115,22,.12);
+  }
+  body.spanish .card{background:linear-gradient(160deg,#ffffff 60%,#fff7ed)}
+  body.spanish .pill{background:rgba(249,115,22,.1);color:#c2410c}
+  body.spanish .pill.past{background:rgba(14,165,233,.12);color:#0369a1}
+  body.spanish .pill.future{background:rgba(16,185,129,.12);color:#047857}
 </style>
 </head>
 <body>
@@ -289,9 +506,25 @@ INDEX_HTML = r"""<!doctype html>
   <section id="content" class="grid"></section>
 </main>
 
+<!-- Modal reader (English) -->
+<div class="modal-bg" id="modalBg" role="dialog" aria-modal="true">
+  <div class="modal" id="modal">
+    <div class="modal-hero">
+      <img class="modal-cover" id="modalCover" src="" alt="" />
+      <div class="modal-meta">
+        <h2 id="modalTitle"></h2>
+        <p id="modalAuthor"></p>
+      </div>
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
 <script>
 const SUBJECTS = __SUBJECTS__;
 const VERBS = __VERBS__;
+const SPANISH_VERBS = __SPANISH_VERBS__;
 
 const tabs = document.getElementById('tabs');
 const content = document.getElementById('content');
@@ -300,7 +533,98 @@ const subtitle = document.getElementById('subtitle');
 
 let active = 'Irish';
 
+const ENGLISH_BOOKS = [
+  {
+    title: 'Purple Hibiscus',
+    author: 'Chimamanda Ngozi Adichie',
+    cover: '/english/purple_hibiscus.jpg',
+    notes: '/english/purple_hibiscus.txt',
+  },
+];
+
+// Modal logic
+const modalBg   = document.getElementById('modalBg');
+const modalClose = document.getElementById('modalClose');
+const modalCover = document.getElementById('modalCover');
+const modalTitle = document.getElementById('modalTitle');
+const modalAuthor = document.getElementById('modalAuthor');
+const modalBody  = document.getElementById('modalBody');
+
+function openBook(book){
+  modalCover.src = book.cover;
+  modalCover.alt = book.title + ' cover';
+  modalTitle.textContent = book.title;
+  modalAuthor.textContent = book.author;
+  modalBody.innerHTML = '<p style="color:#a78bfa">Loading notes…</p>';
+  modalBg.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  fetch(book.notes)
+    .then(r => r.text())
+    .then(txt => { modalBody.innerHTML = parseNotes(txt); })
+    .catch(() => { modalBody.innerHTML = '<p>Could not load notes.</p>'; });
+}
+function closeBook(){
+  modalBg.classList.remove('open');
+  document.body.style.overflow = '';
+}
+modalClose.addEventListener('click', closeBook);
+modalBg.addEventListener('click', e => { if(e.target === modalBg) closeBook(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeBook(); });
+
+function parseNotes(txt){
+  const lines = txt.split('\n');
+  let html = '';
+  let inUl = false;
+  const closeUl = () => { if(inUl){ html += '</ul>'; inUl = false; } };
+
+  const isHeading = l => {
+    // All-caps words, or short lines with no trailing punctuation that look like titles
+    if(!l.trim()) return false;
+    if(/^(Key Themes|Important Characters|Symbols|Style and Techniques|Quotes to Learn|Sample Exam Points|Overview|Plot Summary)/.test(l)) return 'h1';
+    if(/^\d+\.\s/.test(l) || /^(Why|How|Discuss|For the Leaving)/.test(l)) return 'h2';
+    if(/^(Exam Point:|Exam phrase:|Exam Point$)/.test(l.trim())) return 'exam';
+    return false;
+  };
+
+  for(let i=0; i<lines.length; i++){
+    const raw = lines[i];
+    const l = raw.trim();
+    if(!l){ closeUl(); html += ''; continue; }
+    const h = isHeading(l);
+    if(h === 'h1'){ closeUl(); html += `<div class="notes-h1">${l}</div>`; continue; }
+    if(h === 'h2'){ closeUl(); html += `<div class="notes-h2">${l}</div>`; continue; }
+    if(h === 'exam'){
+      closeUl();
+      // peek ahead for the exam text
+      const next = lines[i+1] ? lines[i+1].trim() : '';
+      const body = next && !isHeading(next) ? next : '';
+      if(body){ i++; }
+      html += `<div class="exam-tip">${body}</div>`;
+      continue;
+    }
+    // quoted lines
+    if(l.startsWith('"') && l.endsWith('"')){
+      closeUl();
+      html += `<div class="quote-block">${l}</div>`;
+      continue;
+    }
+    // short lines (likely bullet items when under a heading)
+    if(l.length < 80 && !l.endsWith('.') && !l.endsWith(':') && i > 0 && !isHeading(lines[i-1] ? lines[i-1].trim() : '')){
+      if(!inUl){ html += '<ul class="notes-ul">'; inUl = true; }
+      html += `<li>${l}</li>`;
+    } else {
+      closeUl();
+      html += `<p class="notes-p">${l}</p>`;
+    }
+  }
+  closeUl();
+  return html;
+}
+
 function renderTabs(){
+  if(active === 'Spanish') document.body.className = 'spanish';
+  else if(active === 'English') document.body.className = 'english';
+  else document.body.className = '';
   tabs.innerHTML = '';
   SUBJECTS.forEach(s => {
     const b = document.createElement('button');
@@ -312,33 +636,70 @@ function renderTabs(){
 }
 
 function renderContent(){
-  if(active !== 'Irish'){
-    title.textContent = active;
-    subtitle.textContent = 'Coming soon — start with Irish for now.';
+  if(active === 'English'){
+    title.textContent = 'English — Books & Notes';
+    subtitle.textContent = 'Tap a book to open your study notes.';
     content.className = '';
-    content.innerHTML = `
-      <div class="placeholder">
-        <h3>${active} is on the way</h3>
-        <p>Tap <b>Irish</b> to study the 50 most popular verbs.</p>
-      </div>`;
+    content.innerHTML = '';
+    const shelf = document.createElement('div');
+    shelf.className = 'shelf';
+    ENGLISH_BOOKS.forEach(book => {
+      const wrap = document.createElement('div');
+      wrap.className = 'book-wrap';
+      wrap.setAttribute('role','button');
+      wrap.setAttribute('tabindex','0');
+      wrap.innerHTML = `
+        <img class="book-cover" src="${book.cover}" alt="${book.title} cover" />
+        <div class="book-label">${book.title}<small>${book.author}</small></div>`;
+      wrap.addEventListener('click', () => openBook(book));
+      wrap.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') openBook(book); });
+      shelf.appendChild(wrap);
+    });
+    content.appendChild(shelf);
     return;
   }
-  title.textContent = 'Gaeilge — 50 Verbs';
-  subtitle.textContent = 'Default card shows the present tense.';
-  content.className = 'grid';
-  content.innerHTML = '';
-  VERBS.forEach((v, i) => content.appendChild(buildCard(v, i+1)));
+  if(active === 'Irish'){
+    title.textContent = 'Gaeilge — 50 Verbs';
+    subtitle.textContent = 'Default card shows the present tense.';
+    content.className = 'grid';
+    content.innerHTML = '';
+    VERBS.forEach((v, i) => content.appendChild(buildCard(v, i+1)));
+    return;
+  }
+  if(active === 'Spanish'){
+    title.textContent = 'Español — 50 Verbos';
+    subtitle.textContent = 'La tarjeta muestra el presente por defecto.';
+    content.className = 'grid';
+    content.innerHTML = '';
+    SPANISH_VERBS.forEach((v, i) => content.appendChild(
+      buildCard(v, i+1, {pastLabel:'Pretérito', futureLabel:'Futuro', presentLabel:'Presente', verbField:'es'})
+    ));
+    return;
+  }
+  title.textContent = active;
+  subtitle.textContent = 'Coming soon — try Irish or Spanish.';
+  content.className = '';
+  content.innerHTML = `
+    <div class="placeholder">
+      <h3>${active} is on the way</h3>
+      <p>Tap <b>Irish</b> or <b>Spanish</b> to study the 50 most popular verbs.</p>
+    </div>`;
 }
 
-function buildCard(v, n){
+function buildCard(v, n, opts){
+  opts = opts || {};
+  const pastLabel  = opts.pastLabel    || 'Past · Aimsir Chaite';
+  const futLabel   = opts.futureLabel  || 'Future · Aimsir Fháistineach';
+  const presLabel  = opts.presentLabel || 'Present';
+  const verbField  = opts.verbField    || 'ga';
   const stage = document.createElement('div');
   stage.className = 'stage';
   stage.innerHTML = `
-    <div class="reveal past"><span class="badge">◀ Past · Aimsir Chaite</span></div>
-    <div class="reveal future"><span class="badge">Future · Aimsir Fháistineach ▶</span></div>
-    <article class="card">
+    <div class="reveal past"><span class="badge">◀ ${pastLabel}</span></div>
+    <div class="reveal future"><span class="badge">${futLabel} ▶</span></div>
+    <article class="card" data-past-label="${pastLabel}" data-fut-label="${futLabel}" data-pres-label="${presLabel}">
       <div class="top">
-        <div class="verb"><b>${v.ga}</b> · ${v.en}</div>
+        <div class="verb"><b>${v[verbField]}</b> · ${v.en}</div>
         <span class="num">#${n}</span>
       </div>
       <div class="icon">${v.icon}</div>
@@ -363,17 +724,20 @@ function attachSwipe(stage){
   const THRESHOLD = 70;
 
   function setTense(t){
+    const pastLabel = card.dataset.pastLabel;
+    const futLabel  = card.dataset.futLabel;
+    const presLabel = card.dataset.presLabel;
     if(t==='past'){
       sentence.textContent = sentence.dataset.past;
-      pill.textContent='Past · Aimsir Chaite';
+      pill.textContent = pastLabel;
       pill.className='pill past';
     } else if(t==='future'){
       sentence.textContent = sentence.dataset.future;
-      pill.textContent='Future · Aimsir Fháistineach';
+      pill.textContent = futLabel;
       pill.className='pill future';
     } else {
       sentence.textContent = sentence.dataset.present;
-      pill.textContent='Present';
+      pill.textContent = presLabel;
       pill.className='pill';
     }
   }
@@ -471,6 +835,7 @@ class Handler(BaseHTTPRequestHandler):
                 INDEX_HTML
                 .replace("__SUBJECTS__", json.dumps(SUBJECTS))
                 .replace("__VERBS__", json.dumps(VERBS, ensure_ascii=False))
+                .replace("__SPANISH_VERBS__", json.dumps(SPANISH_VERBS, ensure_ascii=False))
             )
             self._send(200, html.encode("utf-8"), "text/html; charset=utf-8")
             return
@@ -481,6 +846,19 @@ class Handler(BaseHTTPRequestHandler):
                 "application/json; charset=utf-8",
             )
             return
+        # Serve static files from subject subfolders
+        safe = self.path.lstrip("/")
+        # Only allow alphanumeric, dash, underscore, dot, slash
+        import re as _re
+        if _re.match(r'^[a-zA-Z0-9_\-\.]+/[a-zA-Z0-9_\-\.]+$', safe):
+            fpath = os.path.join(STATIC_BASE, safe)
+            if os.path.isfile(fpath):
+                ctype, _ = mimetypes.guess_type(fpath)
+                ctype = ctype or "application/octet-stream"
+                with open(fpath, "rb") as f:
+                    data = f.read()
+                self._send(200, data, ctype)
+                return
         self._send(404, b"Not found", "text/plain; charset=utf-8")
 
     def log_message(self, fmt: str, *args) -> None:  # quieter logs
