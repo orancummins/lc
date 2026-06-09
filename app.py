@@ -675,8 +675,8 @@ INDEX_HTML = r"""<!doctype html>
     transition:background .2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px;
   }
   .fv-open-btn:hover{background:rgba(255,255,255,.24)}
-  .fv-body{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#1e293b}
-  .fv-body iframe{width:100%;height:100%;border:none;flex:1;display:block}
+  .fv-body{flex:1;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:#1e293b}
+  .fv-body iframe{width:100%;height:300vh;border:none;display:block}
   .fv-audio-wrap{
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:24px;padding:40px 24px;flex:1;
@@ -764,13 +764,7 @@ function openFileViewer(path, type){
   fvTitle.textContent = prettyFile(path);
   fvOpenBtn.href = path;
   fvBody.innerHTML = '';
-  const isMobile = window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024);
   if(type === 'pdf'){
-    if(isMobile){
-      // iOS/mobile Safari can't scroll PDFs in iframes — open natively instead
-      window.open(path, '_blank');
-      return;
-    }
     const iframe = document.createElement('iframe');
     iframe.src = path;
     fvBody.appendChild(iframe);
