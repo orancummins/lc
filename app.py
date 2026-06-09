@@ -1592,7 +1592,13 @@ function buildCard(v, n, opts){
     if(!text) return;
     ttsBtn.classList.add('loading');
     if(ttsLang === 'ga'){
-      const audio = new Audio('/tts?lang=ga&text=' + encodeURIComponent(text));
+      let basePath = window.location.pathname;
+      if(basePath.endsWith('/index.html')) basePath = basePath.slice(0, -'index.html'.length);
+      else if(!basePath.endsWith('/')) basePath += '/';
+      const url = new URL(basePath + 'tts', window.location.origin);
+      url.searchParams.set('lang', 'ga');
+      url.searchParams.set('text', text);
+      const audio = new Audio(url.toString());
       audio.addEventListener('playing', () => ttsBtn.classList.remove('loading'), {once:true});
       audio.addEventListener('ended', () => ttsBtn.classList.remove('loading'), {once:true});
       audio.addEventListener('error', () => { ttsBtn.classList.remove('loading'); alert('Irish speech is unavailable right now.'); }, {once:true});
@@ -1766,7 +1772,10 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self) -> None:  # noqa: N802
-        if self.path in ("/", "/index.html"):
+        parsed_url = urlparse(self.path)
+        request_path = parsed_url.path
+
+        if request_path in ("/", "/index.html"):
             html = (
                 INDEX_HTML
                 .replace("__SUBJECTS__", json.dumps(SUBJECTS))
@@ -1777,15 +1786,15 @@ class Handler(BaseHTTPRequestHandler):
             )
             self._send(200, html.encode("utf-8"), "text/html; charset=utf-8")
             return
-        if self.path == "/api/verbs":
+        if request_path == "/api/verbs":
             self._send(
                 200,
                 json.dumps(VERBS, ensure_ascii=False).encode("utf-8"),
                 "application/json; charset=utf-8",
             )
             return
-        if self.path.startswith("/tts?"):
-            qs = parse_qs(urlparse(self.path).query)
+        if request_path == "/tts":
+            qs = parse_qs(parsed_url.query)
             text = qs.get("text", [""])[0].strip()
             lang = qs.get("lang", ["ga"])[0]
             if lang not in ("ga", "es"):
@@ -1830,7 +1839,7 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(data)
             return
         # Serve static files from subject subfolders
-        safe = self.path.lstrip("/")
+        safe = request_path.lstrip("/")
         # Only allow alphanumeric, dash, underscore, dot, slash
         import re as _re
         if _re.match(r'^[a-zA-Z0-9_\-]+(?:/[a-zA-Z0-9_\-\.]+){1,2}$', safe):
