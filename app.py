@@ -1420,6 +1420,10 @@ function renderMaths(){
   ];
 
   let h = '<div class="maths-wrap">';
+  h += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;padding:16px 0 8px">' +
+    '<img src="maths/statistics_probability/statistics.png" alt="Statistics" style="max-width:100%;width:auto;max-height:320px;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.35);object-fit:contain">' +
+    '<img src="maths/statistics_probability/probability.png" alt="Probability" style="max-width:100%;width:auto;max-height:320px;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.35);object-fit:contain">' +
+    '</div>';
   h += '<div><div class="maths-section-title">📖 Key Concepts</div>';
   h += '<p class="maths-section-sub">Click any concept to expand the explanation and formula.</p>';
   h += '<div class="concept-list">';
