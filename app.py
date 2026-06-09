@@ -6,10 +6,21 @@ Then open http://localhost:2009
 
 from __future__ import annotations
 
+import base64
+import io
 import json
 import mimetypes
 import os
+import ssl
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlencode, urlparse
+from urllib.request import Request, urlopen
+
+try:
+    from gtts import gTTS as _gTTS
+    _TTS_AVAILABLE = True
+except ImportError:
+    _TTS_AVAILABLE = False
 
 STATIC_BASE = os.path.dirname(os.path.abspath(__file__))
 
@@ -154,7 +165,7 @@ INDEX_HTML = r"""<!doctype html>
     grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
   }
   .stage{
-    position:relative;height:220px;border-radius:var(--radius);
+    position:relative;height:250px;border-radius:var(--radius);
     overflow:hidden;
     background:linear-gradient(180deg,#fafbff,#eef1f8);
     border:1px solid var(--line);
@@ -177,7 +188,7 @@ INDEX_HTML = r"""<!doctype html>
     position:absolute;inset:0;
     background:var(--card);border-radius:var(--radius);
     box-shadow:var(--shadow);
-    padding:18px 18px 44px;
+    padding:18px;
     display:flex;flex-direction:column;gap:10px;
     cursor:grab;user-select:none;touch-action:pan-y;
     transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .2s;
@@ -191,7 +202,7 @@ INDEX_HTML = r"""<!doctype html>
     font-size:11px;color:var(--muted);background:var(--bg-2);
     padding:3px 8px;border-radius:999px;
   }
-  .icon{font-size:64px;line-height:1;margin:6px 0 4px}
+  .icon{font-size:54px;line-height:1;margin:4px 0 2px}
   .sentence{font-size:18px;font-weight:600;line-height:1.35;min-height:50px}
   .tense{
     margin-top:auto;display:flex;align-items:center;gap:8px;
@@ -205,8 +216,8 @@ INDEX_HTML = r"""<!doctype html>
   .pill.past{background:rgba(14,165,233,.12);color:#0369a1}
   .pill.future{background:rgba(16,185,129,.12);color:#047857}
   .arrows{margin-left:auto;color:#cbd5e1;font-size:12px}
+  .card-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:2px}
   .reset-btn{
-    position:absolute;right:10px;bottom:10px;
     display:inline-flex;align-items:center;justify-content:center;
     border:1px solid #c7d2fe;border-radius:999px;padding:6px 10px;
     background:#eef2ff;color:#312e81;font-size:11px;font-weight:900;
@@ -224,7 +235,7 @@ INDEX_HTML = r"""<!doctype html>
   @media (max-width:520px){
     .hero{flex-direction:column;align-items:flex-start;gap:8px}
     .hero h2{font-size:20px}
-    .stage{height:210px}
+    .stage{height:250px}
     .icon{font-size:50px}
     .sentence{font-size:15px}
     .hint{font-size:12px;padding:7px 12px}
@@ -684,6 +695,9 @@ INDEX_HTML = r"""<!doctype html>
   .fv-audio-icon{font-size:80px;line-height:1}
   .fv-audio-label{font-size:20px;font-weight:700;color:#e2e8f0;text-align:center;max-width:480px}
   .fv-audio-wrap audio{width:100%;max-width:480px;border-radius:12px;margin-top:8px}
+  .tts-btn{background:rgba(49,46,129,.1);border:1px solid #c7d2fe;border-radius:50%;width:36px;height:36px;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background .2s;flex:0 0 auto}
+  .tts-btn:hover,.tts-btn:active{background:rgba(255,255,255,.3)}
+  .tts-btn.loading{opacity:.5;pointer-events:none}
 </style>
 </head>
 <body>
@@ -1538,7 +1552,7 @@ function renderSpanishVerbs(){
   content.className = 'grid';
   content.innerHTML = '';
   SPANISH_VERBS.forEach((v, i) => content.appendChild(
-    buildCard(v, i+1, {pastLabel:'Pretérito', futureLabel:'Futuro', presentLabel:'Presente', verbField:'es'})
+    buildCard(v, i+1, {pastLabel:'Pretérito', futureLabel:'Futuro', presentLabel:'Presente', verbField:'es', ttsLang:'es'})
   ));
 }
 
@@ -1548,6 +1562,7 @@ function buildCard(v, n, opts){
   const futLabel   = opts.futureLabel  || 'Future · Aimsir Fháistineach';
   const presLabel  = opts.presentLabel || 'Present';
   const verbField  = opts.verbField    || 'ga';
+  const ttsLang    = opts.ttsLang      || 'ga';
   const stage = document.createElement('div');
   stage.className = 'stage';
   stage.innerHTML = `
@@ -1564,8 +1579,53 @@ function buildCard(v, n, opts){
         <span class="pill" data-pill>Present</span>
         <span class="arrows">← future · past →</span>
       </div>
-      <button type="button" class="reset-btn" data-reset>Back to present</button>
+      <div class="card-actions">
+        <button type="button" class="reset-btn" data-reset>Back to present</button>
+        <button type="button" class="tts-btn" data-tts title="Listen">🔊</button>
+      </div>
     </article>`;
+  const ttsBtn = stage.querySelector('[data-tts]');
+  ttsBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const sentence = stage.querySelector('.sentence');
+    const text = sentence.textContent.trim();
+    if(!text) return;
+    ttsBtn.classList.add('loading');
+    if(ttsLang === 'ga'){
+      const audio = new Audio('/tts?lang=ga&text=' + encodeURIComponent(text));
+      audio.addEventListener('playing', () => ttsBtn.classList.remove('loading'), {once:true});
+      audio.addEventListener('ended', () => ttsBtn.classList.remove('loading'), {once:true});
+      audio.addEventListener('error', () => { ttsBtn.classList.remove('loading'); alert('Irish speech is unavailable right now.'); }, {once:true});
+      const playPromise = audio.play();
+      if(playPromise) playPromise.catch(() => {
+        ttsBtn.classList.remove('loading');
+        alert('Tap the speech button again to play Irish audio.');
+      });
+      return;
+    }
+    if(!window.speechSynthesis){
+      ttsBtn.classList.remove('loading');
+      return;
+    }
+    const bcp = 'es-ES';
+    speechSynthesis.cancel();
+    function doSpeak(voices){
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.lang = bcp;
+      const prefix = bcp.split('-')[0].toLowerCase();
+      const match = voices.find(v => v.lang.toLowerCase().startsWith(prefix));
+      if(match) utt.voice = match;
+      utt.onend = () => ttsBtn.classList.remove('loading');
+      utt.onerror = () => ttsBtn.classList.remove('loading');
+      speechSynthesis.speak(utt);
+    }
+    const voices = speechSynthesis.getVoices();
+    if(voices.length){ doSpeak(voices); }
+    else{
+      speechSynthesis.addEventListener('voiceschanged', () => doSpeak(speechSynthesis.getVoices()), {once:true});
+      setTimeout(() => { if(ttsBtn.classList.contains('loading')) doSpeak(speechSynthesis.getVoices()); }, 600);
+    }
+  });
   attachSwipe(stage);
   return stage;
 }
@@ -1723,6 +1783,51 @@ class Handler(BaseHTTPRequestHandler):
                 json.dumps(VERBS, ensure_ascii=False).encode("utf-8"),
                 "application/json; charset=utf-8",
             )
+            return
+        if self.path.startswith("/tts?"):
+            qs = parse_qs(urlparse(self.path).query)
+            text = qs.get("text", [""])[0].strip()
+            lang = qs.get("lang", ["ga"])[0]
+            if lang not in ("ga", "es"):
+                lang = "ga"
+            if not text:
+                self._send(400, b"Missing text", "text/plain")
+                return
+            if lang == "ga":
+                params = urlencode({"input": text, "voice": "ga_CO_snc_piper", "normalise": "true"})
+                try:
+                    req = Request(
+                        "https://synthesis.abair.ie/api/synthesise?" + params,
+                        headers={
+                            "User-Agent": "Mozilla/5.0",
+                            "Referer": "https://www.abair.ie/synthesis",
+                        },
+                    )
+                    with urlopen(req, timeout=20, context=ssl._create_unverified_context()) as resp:
+                        payload = json.loads(resp.read().decode("utf-8"))
+                    data = base64.b64decode(payload["audioContent"])
+                except Exception as exc:
+                    self._send(502, ("Irish TTS failed: " + str(exc)).encode("utf-8"), "text/plain")
+                    return
+                self.send_response(200)
+                self.send_header("Content-Type", "audio/wav")
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "public, max-age=86400")
+                self.end_headers()
+                self.wfile.write(data)
+                return
+            if not _TTS_AVAILABLE:
+                self._send(503, b"gTTS not installed", "text/plain")
+                return
+            buf = io.BytesIO()
+            _gTTS(text=text, lang=lang).write_to_fp(buf)
+            data = buf.getvalue()
+            self.send_response(200)
+            self.send_header("Content-Type", "audio/mpeg")
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Cache-Control", "public, max-age=86400")
+            self.end_headers()
+            self.wfile.write(data)
             return
         # Serve static files from subject subfolders
         safe = self.path.lstrip("/")
