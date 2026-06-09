@@ -4,6 +4,20 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 PORT="${PORT:-2009}"
+VENV_DIR="$SCRIPT_DIR/.venv"
+REQUIREMENTS_FILE="$SCRIPT_DIR/requirements.txt"
+
+if [[ ! -d "$VENV_DIR" ]]; then
+  echo "[run] Creating virtual environment at $VENV_DIR"
+  python3 -m venv "$VENV_DIR"
+fi
+
+source "$VENV_DIR/bin/activate"
+
+if [[ -f "$REQUIREMENTS_FILE" ]]; then
+  echo "[run] Installing Python dependencies from requirements.txt"
+  python -m pip install --disable-pip-version-check -r "$REQUIREMENTS_FILE"
+fi
 
 existing_pids="$(lsof -tiTCP:"$PORT" -sTCP:LISTEN 2>/dev/null || true)"
 if [[ -n "$existing_pids" ]]; then
@@ -26,4 +40,4 @@ if [[ -n "$existing_pids" ]]; then
 fi
 
 echo "[run] Starting app on http://localhost:$PORT"
-exec python3 app.py
+exec python app.py
