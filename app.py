@@ -37,6 +37,33 @@ def _load_micro_images() -> list[str]:
 BIOLOGY_MICRO_IMAGES = _load_micro_images()
 
 
+def _load_past_papers() -> dict:
+    """Scan each subject's pastpapers/ folder and return {SubjectName: [paths]}."""
+    subjects_map = {
+        "English": "english",
+        "Irish": "irish",
+        "Maths": "maths",
+        "DCG": "dcg",
+        "Art": "art",
+        "Spanish": "spanish",
+        "Biology": "biology",
+    }
+    allowed = {".pdf", ".mp3", ".wav", ".ogg", ".m4a"}
+    result = {}
+    for label, folder_name in subjects_map.items():
+        folder = os.path.join(STATIC_BASE, folder_name, "pastpapers")
+        if not os.path.isdir(folder):
+            result[label] = []
+            continue
+        result[label] = sorted(
+            f"{folder_name}/pastpapers/{name}"
+            for name in os.listdir(folder)
+            if os.path.splitext(name)[1].lower() in allowed
+        )
+    return result
+
+
+PAST_PAPERS = _load_past_papers()
 
 SUBJECTS = ["English", "Irish", "Maths", "DCG", "Art", "Spanish", "Biology"]
 
@@ -556,6 +583,100 @@ INDEX_HTML = r"""<!doctype html>
     .dcg-flow,.dcg-seq{grid-template-columns:1fr;}
     .dcg-arrow,.dcg-mini-arrow{transform:rotate(90deg);font-size:24px}
   }
+  /* ── Back button ─────────────────────────────────── */
+  .back-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 16px;border-radius:999px;border:1px solid var(--line);
+    background:#fff;color:var(--ink);font-weight:600;font-size:13px;
+    cursor:pointer;transition:.15s ease;box-shadow:var(--shadow);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .back-btn:hover{transform:translateX(-2px)}
+  /* ── Subject home pages ──────────────────────────── */
+  .home-wrap{max-width:1100px;margin:0 auto}
+  .home-banner{
+    background:linear-gradient(135deg,var(--bg),var(--bg-2));
+    border:1px solid var(--line);border-radius:18px;
+    padding:24px 26px;margin-bottom:20px;
+  }
+  .home-banner h3{margin:0 0 4px;font-size:22px}
+  .home-banner p{margin:0;color:var(--muted);font-size:14px}
+  .home-grid{
+    display:grid;gap:16px;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  }
+  .home-card{
+    background:#fff;border:1px solid var(--line);border-radius:18px;
+    box-shadow:var(--shadow);padding:24px;cursor:pointer;
+    transition:transform .2s ease,box-shadow .2s ease;
+    display:flex;flex-direction:column;gap:10px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .home-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 20px 48px rgba(15,23,42,.12),0 4px 12px rgba(15,23,42,.06);
+  }
+  .hc-icon{font-size:40px;line-height:1}
+  .hc-title{font-size:18px;font-weight:800;color:var(--ink)}
+  .hc-desc{font-size:14px;color:var(--muted);line-height:1.5}
+  .hc-arrow{margin-top:auto;font-size:20px;color:var(--brand);font-weight:900;align-self:flex-end}
+  .home-card.pp-card{border-color:#c7d2fe;background:linear-gradient(160deg,#fff,#eef2ff)}
+  .home-card.pp-card .hc-arrow{color:var(--brand-2)}
+  /* ── Past papers page ────────────────────────────── */
+  .pp-wrap{max-width:1100px;margin:0 auto;display:grid;gap:20px}
+  .pp-year-label{font-size:16px;font-weight:800;color:var(--ink);margin:0 0 10px}
+  .pp-file-list{display:flex;flex-direction:column;gap:8px}
+  .pp-file-row{
+    display:flex;align-items:center;gap:14px;
+    background:#fff;border:1px solid var(--line);border-radius:14px;
+    padding:14px 16px;cursor:pointer;box-shadow:var(--shadow);
+    transition:transform .15s ease,box-shadow .15s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .pp-file-row:hover{transform:translateX(4px);box-shadow:0 8px 24px rgba(15,23,42,.1)}
+  .pp-file-icon{
+    width:44px;height:44px;border-radius:12px;
+    display:grid;place-items:center;font-size:22px;flex-shrink:0;
+  }
+  .pp-file-icon.pdf{background:rgba(239,68,68,.1);color:#dc2626}
+  .pp-file-icon.audio{background:rgba(16,185,129,.1);color:#059669}
+  .pp-file-name{font-size:15px;font-weight:600;color:var(--ink);flex:1}
+  .pp-file-meta{font-size:12px;color:var(--muted);font-weight:600;background:var(--bg-2);padding:3px 8px;border-radius:999px}
+  .pp-file-open{font-size:20px;color:#94a3b8;font-weight:900}
+  /* ── File viewer modal ───────────────────────────── */
+  .fv-bg{
+    position:fixed;inset:0;z-index:200;
+    background:rgba(15,23,42,.85);
+    backdrop-filter:blur(8px);
+    display:flex;flex-direction:column;
+    opacity:0;pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .fv-bg.open{opacity:1;pointer-events:auto}
+  .fv-header{
+    display:flex;align-items:center;gap:14px;
+    padding:14px 20px;background:rgba(15,23,42,.95);color:#fff;flex-shrink:0;
+  }
+  .fv-header-title{
+    flex:1;font-weight:700;font-size:15px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .fv-close{
+    background:rgba(255,255,255,.15);border:none;border-radius:999px;
+    color:#fff;font-size:22px;width:38px;height:38px;
+    cursor:pointer;display:grid;place-items:center;flex-shrink:0;
+    transition:background .2s;
+  }
+  .fv-close:hover{background:rgba(255,255,255,.28)}
+  .fv-body{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#1e293b}
+  .fv-body iframe{width:100%;height:100%;border:none;flex:1;display:block}
+  .fv-audio-wrap{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:24px;padding:40px 24px;flex:1;
+  }
+  .fv-audio-icon{font-size:80px;line-height:1}
+  .fv-audio-label{font-size:20px;font-weight:700;color:#e2e8f0;text-align:center;max-width:480px}
+  .fv-audio-wrap audio{width:100%;max-width:480px;border-radius:12px;margin-top:8px}
 </style>
 </head>
 <body>
@@ -576,7 +697,10 @@ INDEX_HTML = r"""<!doctype html>
       <h2 id="title">Gaeilge — 50 Verbs</h2>
       <p id="subtitle">Default card shows the present tense.</p>
     </div>
-    <div class="hint" id="swipeHint">Slide <b>→ right</b> for past · Slide <i>← left</i> for future</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="back-btn" id="heroBackBtn" style="display:none">&#8592; Back</button>
+      <div class="hint" id="swipeHint">Slide <b>→ right</b> for past · Slide <i>← left</i> for future</div>
+    </div>
   </section>
   <section id="content" class="grid"></section>
 </main>
@@ -596,11 +720,21 @@ INDEX_HTML = r"""<!doctype html>
   </div>
 </div>
 
+<!-- File viewer modal (PDFs + Audio) -->
+<div class="fv-bg" id="fvBg" role="dialog" aria-modal="true">
+  <div class="fv-header">
+    <span class="fv-header-title" id="fvTitle"></span>
+    <button class="fv-close" id="fvClose" aria-label="Close">&times;</button>
+  </div>
+  <div class="fv-body" id="fvBody"></div>
+</div>
+
 <script>
 const SUBJECTS = __SUBJECTS__;
 const VERBS = __VERBS__;
 const SPANISH_VERBS = __SPANISH_VERBS__;
 const BIOLOGY_MICRO_IMAGES = __BIOLOGY_MICRO_IMAGES__;
+const PAST_PAPERS = __PAST_PAPERS__;
 
 const tabs = document.getElementById('tabs');
 const content = document.getElementById('content');
@@ -608,6 +742,162 @@ const title = document.getElementById('title');
 const subtitle = document.getElementById('subtitle');
 
 let active = 'Irish';
+let activeView = 'home';
+
+// ── File viewer modal ────────────────────────────────────────
+const fvBg    = document.getElementById('fvBg');
+const fvTitle = document.getElementById('fvTitle');
+const fvBody  = document.getElementById('fvBody');
+document.getElementById('fvClose').addEventListener('click', closeFileViewer);
+fvBg.addEventListener('click', e => { if(e.target === fvBg) closeFileViewer(); });
+
+function openFileViewer(path, type){
+  fvTitle.textContent = prettyFile(path);
+  fvBody.innerHTML = '';
+  if(type === 'pdf'){
+    const iframe = document.createElement('iframe');
+    iframe.src = path;
+    fvBody.appendChild(iframe);
+  } else {
+    const wrap = document.createElement('div');
+    wrap.className = 'fv-audio-wrap';
+    wrap.innerHTML =
+      '<div class="fv-audio-icon">🔊</div>' +
+      '<div class="fv-audio-label">' + escapeHtml(prettyFile(path)) + '</div>' +
+      '<audio controls autoplay src="' + escapeHtml(path) + '"></audio>';
+    fvBody.appendChild(wrap);
+  }
+  fvBg.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeFileViewer(){
+  fvBg.classList.remove('open');
+  document.body.style.overflow = '';
+  fvBody.innerHTML = '';
+}
+
+function prettyFile(path){
+  const name = path.split('/').pop().replace(/\.[^.]+$/, '');
+  const knownSubjects = ['english','irish','maths','dcg','art','spanish','biology'];
+  const parts = name.split('-');
+  const start = knownSubjects.includes(parts[0].toLowerCase()) ? 1 : 0;
+  return parts.slice(start).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+}
+
+// ── Subject home page configuration ─────────────────────────
+const SUBJECT_HOMES = {
+  'Irish': {
+    banner: { title:'Gaeilge', desc:'Irish language revision — verb flashcards and past exam papers.' },
+    topics: [
+      { key:'irish-verbs', icon:'🃏', title:'Briathra · 50 Verbs', desc:'Swipeable flashcards covering present, past and future tenses for 50 essential verbs.' },
+      { key:'pastpapers', icon:'📄', title:'Past Papers', desc:'Leaving Cert Irish papers (Paper 1 & 2) and listening audio files from recent years.', isPP:true },
+    ]
+  },
+  'Spanish': {
+    banner: { title:'Español', desc:'Spanish language revision — verb flashcards and past exam papers.' },
+    topics: [
+      { key:'spanish-verbs', icon:'🃏', title:'Verbos · 50 Verbs', desc:'Swipeable flashcards covering present, preterite and future tenses for 50 essential verbs.' },
+      { key:'pastpapers', icon:'📄', title:'Past Papers', desc:'Leaving Cert Spanish papers and aural audio files from recent years.', isPP:true },
+    ]
+  },
+  'Maths': {
+    banner: { title:'Mathematics', desc:'Maths revision for Leaving Certificate Ordinary Level.' },
+    topics: [
+      { key:'maths-stats', icon:'📊', title:'Statistics & Probability', desc:'Key concepts, formulas and 10 fully worked Ordinary Level practice questions with step-by-step solutions.' },
+      { key:'pastpapers', icon:'📄', title:'Past Papers', desc:'Leaving Cert Maths papers (Paper 1 & Paper 2) from recent years.', isPP:true },
+    ]
+  },
+  'DCG': {
+    banner: { title:'Design & Communication Graphics', desc:'DCG revision — dynamic mechanisms and past exam papers.' },
+    topics: [
+      { key:'dcg-mechanisms', icon:'⚙️', title:'Dynamic Mechanisms', desc:'Motion types, mechanism examples and key exam vocabulary with visual input→mechanism→output flow diagrams.' },
+      { key:'pastpapers', icon:'📄', title:'Past Papers', desc:'Leaving Cert DCG papers (Section A & B/C) from recent years.', isPP:true },
+    ]
+  },
+  'Art': {
+    banner: { title:'Art History & Appreciation', desc:'Art revision — style comparisons, key artists and past exam papers.' },
+    topics: [
+      { key:'art-impressionism', icon:'🎨', title:'Impressionism vs Post-Impressionism', desc:'Visual comparison of the two movements, key artists and phrases you need for exam answers.' },
+      { key:'pastpapers', icon:'📄', title:'Past Papers', desc:'Leaving Cert Art papers and illustration papers from recent years.', isPP:true },
+    ]
+  },
+  'Biology': {
+    banner: { title:'Biology', desc:'Biology revision — microbiology notes with diagrams and past exam papers.' },
+    topics: [
+      { key:'bio-micro', icon:'🔬', title:'Microbiology', desc:'One-page revision guide built from your micro notes with matched cell diagrams and exam tips.' },
+      { key:'pastpapers', icon:'📄', title:'Past Papers', desc:'Leaving Cert Biology papers (A and B/C sections) from recent years.', isPP:true },
+    ]
+  },
+  'English': {
+    banner: { title:'English', desc:'English revision — novel study notes and past exam papers.' },
+    topics: [
+      { key:'english-books', icon:'📚', title:'Books & Notes', desc:'Study notes for prescribed texts, including Purple Hibiscus by Chimamanda Ngozi Adichie.' },
+      { key:'pastpapers', icon:'📄', title:'Past Papers', desc:'Leaving Cert English papers (Paper 1 & Paper 2) from recent years.', isPP:true },
+    ]
+  },
+};
+
+function renderHome(subject){
+  const config = SUBJECT_HOMES[subject];
+  if(!config) return;
+  title.textContent = config.banner.title;
+  subtitle.textContent = config.banner.desc;
+  content.className = '';
+  let h = '<div class="home-wrap"><div class="home-grid">';
+  config.topics.forEach(t => {
+    h += '<div class="home-card' + (t.isPP ? ' pp-card' : '') + '" data-topic="' + t.key + '">';
+    h += '<div class="hc-icon">' + t.icon + '</div>';
+    h += '<div class="hc-title">' + t.title + '</div>';
+    h += '<div class="hc-desc">' + t.desc + '</div>';
+    h += '<div class="hc-arrow">→</div>';
+    h += '</div>';
+  });
+  h += '</div></div>';
+  content.innerHTML = h;
+  content.querySelectorAll('.home-card').forEach(card => {
+    card.addEventListener('click', () => { activeView = card.dataset.topic; renderTabs(); renderContent(); });
+  });
+}
+
+function renderPastPapers(subject){
+  const files = PAST_PAPERS[subject] || [];
+  title.textContent = subject + ' — Past Papers';
+  subtitle.textContent = 'Click a file to open it. PDFs open inline; audio plays in the browser.';
+  content.className = '';
+  if(!files.length){
+    content.innerHTML = '<div class="bio-empty">No past papers found for ' + subject + '.</div>';
+    return;
+  }
+  const groups = {};
+  files.forEach(path => {
+    const m = path.match(/(\d{4})\./);
+    const year = m ? m[1] : 'Other';
+    if(!groups[year]) groups[year] = [];
+    groups[year].push(path);
+  });
+  let h = '<div class="pp-wrap">';
+  Object.keys(groups).sort().reverse().forEach(year => {
+    h += '<div><div class="pp-year-label">' + year + '</div><div class="pp-file-list">';
+    groups[year].forEach(path => {
+      const ext = path.split('.').pop().toLowerCase();
+      const isPdf = ext === 'pdf';
+      const iconClass = isPdf ? 'pdf' : 'audio';
+      const icon = isPdf ? '📄' : '🔊';
+      h += '<div class="pp-file-row" data-path="' + escapeHtml(path) + '" data-type="' + (isPdf ? 'pdf' : 'audio') + '">';
+      h += '<div class="pp-file-icon ' + iconClass + '">' + icon + '</div>';
+      h += '<div class="pp-file-name">' + escapeHtml(prettyFile(path)) + '</div>';
+      h += '<div class="pp-file-meta">' + ext.toUpperCase() + '</div>';
+      h += '<div class="pp-file-open">›</div>';
+      h += '</div>';
+    });
+    h += '</div></div>';
+  });
+  h += '</div>';
+  content.innerHTML = h;
+  content.querySelectorAll('.pp-file-row').forEach(row => {
+    row.addEventListener('click', () => openFileViewer(row.dataset.path, row.dataset.type));
+  });
+}
 
 const ENGLISH_BOOKS = [
   {
@@ -645,7 +935,7 @@ function closeBook(){
 }
 modalClose.addEventListener('click', closeBook);
 modalBg.addEventListener('click', e => { if(e.target === modalBg) closeBook(); });
-document.addEventListener('keydown', e => { if(e.key === 'Escape') closeBook(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closeBook(); closeFileViewer(); } });
 
 function parseNotes(txt){
   const lines = txt.split('\n');
@@ -1163,82 +1453,79 @@ function renderTabs(){
   else if(active === 'DCG') document.body.className = 'dcg';
   else if(active === 'Maths') document.body.className = 'maths';
   else document.body.className = '';
+  // Swipe hint only when on verb card views
   const hint = document.getElementById('swipeHint');
-  if(hint) hint.classList.toggle('visible', active==='Irish'||active==='Spanish');
+  if(hint) hint.classList.toggle('visible',
+    (active==='Irish' && activeView==='irish-verbs') ||
+    (active==='Spanish' && activeView==='spanish-verbs'));
+  // Back button
+  const backBtn = document.getElementById('heroBackBtn');
+  if(backBtn){
+    backBtn.style.display = activeView !== 'home' ? 'inline-flex' : 'none';
+    backBtn.textContent = '\u2190 ' + active;
+    backBtn.onclick = () => { activeView = 'home'; renderTabs(); renderContent(); };
+  }
   tabs.innerHTML = '';
   SUBJECTS.forEach(s => {
     const b = document.createElement('button');
     b.className = 'tab' + (s===active ? ' active' : '');
     b.textContent = s;
-    b.onclick = () => { active = s; renderTabs(); renderContent(); };
+    b.onclick = () => { active = s; activeView = 'home'; renderTabs(); renderContent(); };
     tabs.appendChild(b);
   });
 }
 
 function renderContent(){
-  if(active === 'Maths'){
-    renderMaths(); return;
-  }
-  if(active === 'English'){
-    title.textContent = 'English — Books & Notes';
-    subtitle.textContent = 'Tap a book to open your study notes.';
-    content.className = '';
-    content.innerHTML = '';
-    const shelf = document.createElement('div');
-    shelf.className = 'shelf';
-    ENGLISH_BOOKS.forEach(book => {
-      const wrap = document.createElement('div');
-      wrap.className = 'book-wrap';
-      wrap.setAttribute('role','button');
-      wrap.setAttribute('tabindex','0');
-      wrap.innerHTML = `
+  if(activeView === 'home'){ renderHome(active); return; }
+  if(activeView === 'pastpapers'){ renderPastPapers(active); return; }
+  if(activeView === 'maths-stats'){ renderMaths(); return; }
+  if(activeView === 'english-books'){ renderEnglishBooks(); return; }
+  if(activeView === 'irish-verbs'){ renderIrishVerbs(); return; }
+  if(activeView === 'spanish-verbs'){ renderSpanishVerbs(); return; }
+  if(activeView === 'bio-micro'){ renderBiology(); return; }
+  if(activeView === 'art-impressionism'){ renderArt(); return; }
+  if(activeView === 'dcg-mechanisms'){ renderDCG(); return; }
+  renderHome(active);
+}
+
+function renderEnglishBooks(){
+  title.textContent = 'English — Books & Notes';
+  subtitle.textContent = 'Tap a book to open your study notes.';
+  content.className = '';
+  content.innerHTML = '';
+  const shelf = document.createElement('div');
+  shelf.className = 'shelf';
+  ENGLISH_BOOKS.forEach(book => {
+    const wrap = document.createElement('div');
+    wrap.className = 'book-wrap';
+    wrap.setAttribute('role','button');
+    wrap.setAttribute('tabindex','0');
+    wrap.innerHTML = `
         <img class="book-cover" src="${book.cover}" alt="${book.title} cover" />
         <div class="book-label">${book.title}<small>${book.author}</small></div>`;
-      wrap.addEventListener('click', () => openBook(book));
-      wrap.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') openBook(book); });
-      shelf.appendChild(wrap);
-    });
-    content.appendChild(shelf);
-    return;
-  }
-  if(active === 'Irish'){
-    title.textContent = 'Gaeilge — 50 Verbs';
-    subtitle.textContent = 'Default card shows the present tense.';
-    content.className = 'grid';
-    content.innerHTML = '';
-    VERBS.forEach((v, i) => content.appendChild(buildCard(v, i+1)));
-    return;
-  }
-  if(active === 'Spanish'){
-    title.textContent = 'Español — 50 Verbos';
-    subtitle.textContent = 'La tarjeta muestra el presente por defecto.';
-    content.className = 'grid';
-    content.innerHTML = '';
-    SPANISH_VERBS.forEach((v, i) => content.appendChild(
-      buildCard(v, i+1, {pastLabel:'Pretérito', futureLabel:'Futuro', presentLabel:'Presente', verbField:'es'})
-    ));
-    return;
-  }
-  if(active === 'Biology'){
-    renderBiology();
-    return;
-  }
-  if(active === 'Art'){
-    renderArt();
-    return;
-  }
-  if(active === 'DCG'){
-    renderDCG();
-    return;
-  }
-  title.textContent = active;
-  subtitle.textContent = 'Coming soon — try Irish, Spanish, Biology, Art, or DCG.';
-  content.className = '';
-  content.innerHTML = `
-    <div class="placeholder">
-      <h3>${active} is on the way</h3>
-      <p>Tap <b>Irish</b>, <b>Spanish</b>, <b>Biology</b>, <b>Art</b>, or <b>DCG</b> to study the topic pages.</p>
-    </div>`;
+    wrap.addEventListener('click', () => openBook(book));
+    wrap.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') openBook(book); });
+    shelf.appendChild(wrap);
+  });
+  content.appendChild(shelf);
+}
+
+function renderIrishVerbs(){
+  title.textContent = 'Gaeilge — 50 Verbs';
+  subtitle.textContent = 'Default card shows the present tense.';
+  content.className = 'grid';
+  content.innerHTML = '';
+  VERBS.forEach((v, i) => content.appendChild(buildCard(v, i+1)));
+}
+
+function renderSpanishVerbs(){
+  title.textContent = 'Español — 50 Verbos';
+  subtitle.textContent = 'La tarjeta muestra el presente por defecto.';
+  content.className = 'grid';
+  content.innerHTML = '';
+  SPANISH_VERBS.forEach((v, i) => content.appendChild(
+    buildCard(v, i+1, {pastLabel:'Pretérito', futureLabel:'Futuro', presentLabel:'Presente', verbField:'es'})
+  ));
 }
 
 function buildCard(v, n, opts){
@@ -1412,6 +1699,7 @@ class Handler(BaseHTTPRequestHandler):
                 .replace("__VERBS__", json.dumps(VERBS, ensure_ascii=False))
                 .replace("__SPANISH_VERBS__", json.dumps(SPANISH_VERBS, ensure_ascii=False))
               .replace("__BIOLOGY_MICRO_IMAGES__", json.dumps(BIOLOGY_MICRO_IMAGES, ensure_ascii=False))
+              .replace("__PAST_PAPERS__", json.dumps(PAST_PAPERS, ensure_ascii=False))
             )
             self._send(200, html.encode("utf-8"), "text/html; charset=utf-8")
             return
@@ -1431,9 +1719,36 @@ class Handler(BaseHTTPRequestHandler):
             if os.path.isfile(fpath):
                 ctype, _ = mimetypes.guess_type(fpath)
                 ctype = ctype or "application/octet-stream"
+                file_size = os.path.getsize(fpath)
+                range_header = self.headers.get("Range")
+                if range_header:
+                    m = _re.match(r'bytes=(\d+)-(\d*)', range_header)
+                    if m:
+                        start = int(m.group(1))
+                        end = int(m.group(2)) if m.group(2) else file_size - 1
+                        end = min(end, file_size - 1)
+                        length = end - start + 1
+                        with open(fpath, "rb") as f:
+                            f.seek(start)
+                            data = f.read(length)
+                        self.send_response(206)
+                        self.send_header("Content-Type", ctype)
+                        self.send_header("Content-Length", str(length))
+                        self.send_header("Content-Range", f"bytes {start}-{end}/{file_size}")
+                        self.send_header("Accept-Ranges", "bytes")
+                        self.send_header("Cache-Control", "no-store")
+                        self.end_headers()
+                        self.wfile.write(data)
+                        return
                 with open(fpath, "rb") as f:
                     data = f.read()
-                self._send(200, data, ctype)
+                self.send_response(200)
+                self.send_header("Content-Type", ctype)
+                self.send_header("Content-Length", str(file_size))
+                self.send_header("Accept-Ranges", "bytes")
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(data)
                 return
         self._send(404, b"Not found", "text/plain; charset=utf-8")
 
