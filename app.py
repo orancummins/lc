@@ -668,6 +668,13 @@ INDEX_HTML = r"""<!doctype html>
     transition:background .2s;
   }
   .fv-close:hover{background:rgba(255,255,255,.28)}
+  .fv-open-btn{
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;
+    color:#fff;font-size:13px;font-weight:700;padding:6px 14px;
+    cursor:pointer;white-space:nowrap;flex-shrink:0;
+    transition:background .2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+  }
+  .fv-open-btn:hover{background:rgba(255,255,255,.24)}
   .fv-body{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#1e293b}
   .fv-body iframe{width:100%;height:100%;border:none;flex:1;display:block}
   .fv-audio-wrap{
@@ -724,6 +731,7 @@ INDEX_HTML = r"""<!doctype html>
 <div class="fv-bg" id="fvBg" role="dialog" aria-modal="true">
   <div class="fv-header">
     <span class="fv-header-title" id="fvTitle"></span>
+    <a class="fv-open-btn" id="fvOpenBtn" href="#" target="_blank" rel="noopener">&#8599; Open</a>
     <button class="fv-close" id="fvClose" aria-label="Close">&times;</button>
   </div>
   <div class="fv-body" id="fvBody"></div>
@@ -748,13 +756,21 @@ let activeView = 'home';
 const fvBg    = document.getElementById('fvBg');
 const fvTitle = document.getElementById('fvTitle');
 const fvBody  = document.getElementById('fvBody');
+const fvOpenBtn = document.getElementById('fvOpenBtn');
 document.getElementById('fvClose').addEventListener('click', closeFileViewer);
 fvBg.addEventListener('click', e => { if(e.target === fvBg) closeFileViewer(); });
 
 function openFileViewer(path, type){
   fvTitle.textContent = prettyFile(path);
+  fvOpenBtn.href = path;
   fvBody.innerHTML = '';
+  const isMobile = window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024);
   if(type === 'pdf'){
+    if(isMobile){
+      // iOS/mobile Safari can't scroll PDFs in iframes — open natively instead
+      window.open(path, '_blank');
+      return;
+    }
     const iframe = document.createElement('iframe');
     iframe.src = path;
     fvBody.appendChild(iframe);
