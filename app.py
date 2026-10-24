@@ -1885,7 +1885,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
-    server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
+    server = ThreadingHTTPServer((os.environ.get("HOST", "127.0.0.1"), PORT), Handler)
     print(f"Léann study app running at http://localhost:{PORT}")
     try:
         server.serve_forever()
