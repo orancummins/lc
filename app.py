@@ -460,6 +460,8 @@ INDEX_HTML = r"""<!doctype html>
     margin-top:auto;padding:8px 10px;background:#f8fafc;border-top:1px solid var(--line);
     font-size:12px;color:#0f766e;font-weight:700;
   }
+  .bio-media--full{max-width:820px;width:100%;margin:0 auto}
+  .bio-media--full img{height:auto;min-height:0;object-fit:contain;cursor:zoom-in}
   .bio-row{display:grid;gap:14px}
   .bio-row + .bio-row{margin-top:2px}
   .bio-empty{
@@ -846,9 +848,10 @@ const SUBJECT_HOMES = {
     ]
   },
   'Biology': {
-    banner: { title:'Biology', desc:'Biology revision — microbiology notes with diagrams and past exam papers.' },
+    banner: { title:'Biology', desc:'Biology revision — microbiology and photosynthesis notes with diagrams, plus past exam papers.' },
     topics: [
       { key:'bio-micro', icon:'🔬', title:'Microbiology', desc:'One-page revision guide built from your micro notes with matched cell diagrams and exam tips.' },
+      { key:'bio-photo', icon:'🌱', title:'Photosynthesis', desc:'From simple to exam-ready: inputs and outputs, chloroplasts, the two stages and the key equations.' },
       { key:'pastpapers', icon:'📄', title:'Past Papers', desc:'Leaving Cert Biology papers (A and B/C sections) from recent years.', isPP:true },
     ]
   },
@@ -1093,6 +1096,24 @@ function renderBiology(){
     .catch(() => {
       content.innerHTML = '<div class="bio-empty">Could not load biology/micro.txt.</div>';
     });
+}
+
+function renderPhotosynthesis(){
+  title.textContent = 'Biology — Photosynthesis';
+  subtitle.textContent = 'How plants make food, from simple to exam-ready. Tap the diagram to open it full size.';
+  content.className = '';
+  const src = 'biology/photosynthesis/photosynthesis.webp';
+  let html = '<div class="bio-wrap">';
+  html += '<section class="bio-banner"><h3>Photosynthesis — One Pager</h3>';
+  html += '<p>Light energy + carbon dioxide + water → glucose + oxygen (6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂).</p></section>';
+  html += '<figure class="bio-media bio-media--full">';
+  html += '<a href="' + src + '" target="_blank" rel="noopener">';
+  html += '<img src="' + src + '" alt="Photosynthesis infographic: inputs and outputs, where it happens in the chloroplast, the light-dependent and light-independent stages, and the word and balanced chemical equations" />';
+  html += '</a>';
+  html += '<div class="bio-media-tag">Key idea: chlorophyll in the chloroplasts captures light energy</div>';
+  html += '</figure>';
+  html += '</div>';
+  content.innerHTML = html;
 }
 
 function buildArtPage(txt){
@@ -1511,6 +1532,7 @@ function renderContent(){
   if(activeView === 'irish-verbs'){ renderIrishVerbs(); return; }
   if(activeView === 'spanish-verbs'){ renderSpanishVerbs(); return; }
   if(activeView === 'bio-micro'){ renderBiology(); return; }
+  if(activeView === 'bio-photo'){ renderPhotosynthesis(); return; }
   if(activeView === 'art-impressionism'){ renderArt(); return; }
   if(activeView === 'dcg-mechanisms'){ renderDCG(); return; }
   renderHome(active);
