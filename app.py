@@ -851,7 +851,7 @@ const SUBJECT_HOMES = {
     banner: { title:'Biology', desc:'Biology revision — microbiology and photosynthesis notes with diagrams, plus past exam papers.' },
     topics: [
       { key:'bio-micro', icon:'🔬', title:'Microbiology', desc:'One-page revision guide built from your micro notes with matched cell diagrams and exam tips.' },
-      { key:'bio-photo', icon:'🌱', title:'Photosynthesis', desc:'From simple to exam-ready: inputs and outputs, chloroplasts, the two stages and the key equations.' },
+      { key:'bio-photo', icon:'🌱', title:'Photosynthesis', desc:'From simple to exam-ready: inputs and outputs, chloroplasts, the two stages, key equations and memory tricks.' },
       { key:'pastpapers', icon:'📄', title:'Past Papers', desc:'Leaving Cert Biology papers (A and B/C sections) from recent years.', isPP:true },
     ]
   },
@@ -1110,7 +1110,7 @@ function renderPhotosynthesis(){
   html += '<a href="' + src + '" target="_blank" rel="noopener">';
   html += '<img src="' + src + '" alt="Photosynthesis infographic: inputs and outputs, where it happens in the chloroplast, the light-dependent and light-independent stages, and the word and balanced chemical equations" />';
   html += '</a>';
-  html += '<div class="bio-media-tag">Key idea: chlorophyll in the chloroplasts captures light energy</div>';
+  html += '<div class="bio-media-tag">Exam tip: mention chlorophyll, light, CO₂, water, glucose and O₂</div>';
   html += '</figure>';
   html += '</div>';
   content.innerHTML = html;
