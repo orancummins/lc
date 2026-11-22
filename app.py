@@ -7,6 +7,7 @@ Then open http://localhost:2009
 from __future__ import annotations
 
 import base64
+import hashlib
 import io
 import json
 import mimetypes
@@ -47,6 +48,17 @@ def _load_micro_images() -> list[str]:
 
 BIOLOGY_MICRO_IMAGES = _load_micro_images()
 
+# Changes on every deploy (code or verb data), so open tabs can tell they are stale.
+def _build_id() -> str:
+    h = hashlib.sha1()
+    for rel in ("app.py", "irish/verbs/data.json", "spanish/verbs/data.json"):
+        with open(os.path.join(STATIC_BASE, rel), "rb") as f:
+            h.update(f.read())
+    return h.hexdigest()[:12]
+
+
+BUILD_ID = _build_id()
+
 
 def _load_past_papers() -> dict:
     """Scan each subject's pastpapers/ folder and return {SubjectName: [paths]}."""
@@ -83,6 +95,7 @@ INDEX_HTML = r"""<!doctype html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <title>Study — Léann</title>
 <style>
   :root{
@@ -853,6 +866,37 @@ const subtitle = document.getElementById('subtitle');
 
 let active = 'Irish';
 let activeView = 'home';
+// Restore where we were if the page reloaded itself for an update.
+try{
+  const saved = JSON.parse(sessionStorage.getItem('lcView') || 'null');
+  if(saved && SUBJECTS.includes(saved.active)){ active = saved.active; activeView = saved.view || 'home'; }
+  sessionStorage.removeItem('lcView');
+}catch(e){}
+
+// ── Auto-update: reload when a newer version has been deployed ──
+const BUILD_ID = '__BUILD_ID__';
+let lastVersionCheck = 0;
+function checkForUpdate(force){
+  const now = Date.now();
+  if(!force && now - lastVersionCheck < 15000) return;
+  lastVersionCheck = now;
+  let base = window.location.pathname;
+  if(base.endsWith('/index.html')) base = base.slice(0, -'index.html'.length);
+  else if(!base.endsWith('/')) base += '/';
+  fetch(base + 'version?t=' + now, {cache:'no-store'})
+    .then(r => r.ok ? r.json() : null)
+    .then(d => {
+      if(d && d.build && d.build !== BUILD_ID){
+        try{ sessionStorage.setItem('lcView', JSON.stringify({active, view:activeView})); }catch(e){}
+        window.location.reload();
+      }
+    })
+    .catch(() => {});
+}
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') checkForUpdate(); });
+window.addEventListener('focus', () => checkForUpdate());
+window.addEventListener('pageshow', e => { if(e.persisted) checkForUpdate(true); });
+setInterval(() => { if(document.visibilityState === 'visible') checkForUpdate(); }, 60000);
 
 // ── File viewer modal ────────────────────────────────────────
 const fvBg    = document.getElementById('fvBg');
@@ -2083,12 +2127,16 @@ class Handler(BaseHTTPRequestHandler):
             html = (
                 INDEX_HTML
                 .replace("__SUBJECTS__", json.dumps(SUBJECTS))
+                .replace("__BUILD_ID__", BUILD_ID)
                 .replace("__VERBS__", json.dumps(VERBS, ensure_ascii=False))
                 .replace("__SPANISH_VERBS__", json.dumps(SPANISH_VERBS, ensure_ascii=False))
               .replace("__BIOLOGY_MICRO_IMAGES__", json.dumps(BIOLOGY_MICRO_IMAGES, ensure_ascii=False))
               .replace("__PAST_PAPERS__", json.dumps(PAST_PAPERS, ensure_ascii=False))
             )
             self._send(200, html.encode("utf-8"), "text/html; charset=utf-8")
+            return
+        if request_path == "/version":
+            self._send(200, json.dumps({"build": BUILD_ID}).encode("utf-8"), "application/json")
             return
         if request_path == "/api/verbs":
             self._send(
