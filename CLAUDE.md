@@ -21,9 +21,9 @@ checks GitHub every minute and deploys new commits on `main` by itself
 
 - From a cloud or phone session: commit and push to `main`. If you can only push
   to your own branch, open a pull request; merging it deploys.
-- On the server Mac itself: commit, then `git push origin main`. Within about a minute the
-  auto-deployer sees it (or run
-  `~/dev-server/dev-server-page/scripts/deploy_app.sh lc --restart-only` straight away).
+- On the server Mac itself: commit, then `git push origin main`. The auto-deployer
+  restarts the app within about a minute (it tracks which commit is running), or run
+  `~/dev-server/dev-server-page/scripts/deploy_app.sh lc --restart-only` to restart straight away.
 - Check the live build: `curl https://oran-dev.com/lc/version`. The build ID is a
   hash of `app.py` and the verb data, so it changes when those change. Open tabs
   on phones reload themselves when it changes.

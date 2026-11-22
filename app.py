@@ -13,6 +13,8 @@ import json
 import mimetypes
 import os
 import ssl
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlencode, urlparse
 from urllib.request import Request, urlopen
@@ -51,13 +53,46 @@ BIOLOGY_MICRO_IMAGES = _load_micro_images()
 # Changes on every deploy (code or verb data), so open tabs can tell they are stale.
 def _build_id() -> str:
     h = hashlib.sha1()
-    for rel in ("app.py", "irish/verbs/data.json", "spanish/verbs/data.json"):
+    for rel in ("app.py", "irish/verbs/data.json", "spanish/verbs/data.json", "irish/wotd/words.json"):
         with open(os.path.join(STATIC_BASE, rel), "rb") as f:
             h.update(f.read())
     return h.hexdigest()[:12]
 
 
 BUILD_ID = _build_id()
+
+# Irish "Focal an Lae": one word unlocks per day (Irish time). Only unlocked words are
+# sent to the browser, and the data file itself is never served.
+with open(os.path.join(STATIC_BASE, "irish", "wotd", "words.json"), encoding="utf-8") as _f:
+    IRISH_WOTD = json.load(_f)
+WOTD_START = date(2026, 11, 22)  # day 1 = word 1
+IRISH_TZ = ZoneInfo("Europe/Dublin")
+
+
+def _wotd_day() -> int:
+    """Days since WOTD_START in Irish time (0 on the first day)."""
+    return (datetime.now(IRISH_TZ).date() - WOTD_START).days
+
+
+def _wotd_payload() -> dict:
+    now = datetime.now(IRISH_TZ)
+    day = (now.date() - WOTD_START).days
+    total = len(IRISH_WOTD)
+    unlocked = max(0, min(day + 1, total))
+    midnight = datetime.combine(now.date() + timedelta(days=1), datetime.min.time(), IRISH_TZ)
+    return {
+        "total": total,
+        "unlocked": unlocked,
+        "today": (day % total) if day >= 0 else -1,
+        "startDate": WOTD_START.isoformat(),
+        "secondsToNext": int((midnight - now).total_seconds()),
+        "words": [dict(w, n=i + 1) for i, w in enumerate(IRISH_WOTD[:unlocked])],
+    }
+
+
+def _page_build() -> str:
+    """Build ID plus the day, so open tabs also reload when a new word unlocks."""
+    return f"{BUILD_ID}.{_wotd_day()}"
 
 
 def _load_past_papers() -> dict:
@@ -374,6 +409,86 @@ INDEX_HTML = r"""<!doctype html>
   body.spanish .pill{background:rgba(249,115,22,.1);color:#c2410c}
   body.spanish .pill.past{background:rgba(14,165,233,.12);color:#0369a1}
   body.spanish .pill.future{background:rgba(16,185,129,.12);color:#047857}
+  /* ── Irish word of the day (Focal an Lae) ─────────── */
+  .wd-wrap{max-width:900px;margin:0 auto;display:grid;gap:18px}
+  .wd-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .wd-date{font-weight:800;color:#065f46;font-size:15px}
+  .wd-pills{display:flex;gap:8px;flex-wrap:wrap}
+  .wd-pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;color:#334155}
+  .wd-hero{
+    border-radius:26px;overflow:hidden;background:#fff;box-shadow:0 18px 50px rgba(15,23,42,.14);
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);
+  }
+  .wd-visual{
+    position:relative;min-height:340px;display:grid;place-items:center;overflow:hidden;
+    background:linear-gradient(140deg,var(--g1),var(--g2));
+  }
+  .wd-visual::before,.wd-visual::after{
+    content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.18);
+  }
+  .wd-visual::before{width:260px;height:260px;top:-80px;left:-70px}
+  .wd-visual::after{width:180px;height:180px;bottom:-60px;right:-40px}
+  .wd-emoji{
+    position:relative;z-index:1;font-size:clamp(84px,14vw,128px);line-height:1.1;text-align:center;
+    filter:drop-shadow(0 10px 18px rgba(0,0,0,.18));animation:wdPop .5s cubic-bezier(.2,1.4,.4,1);
+    padding:0 12px;word-break:break-word;
+  }
+  @keyframes wdPop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+  .wd-badge{
+    position:absolute;z-index:1;top:16px;left:16px;background:rgba(255,255,255,.92);color:#0f172a;
+    border-radius:999px;padding:6px 12px;font-size:12px;font-weight:900;letter-spacing:.3px;
+  }
+  .wd-body{padding:26px 26px 22px;display:flex;flex-direction:column;gap:12px}
+  .wd-label{font-size:12px;font-weight:900;color:#059669;text-transform:uppercase;letter-spacing:.6px}
+  .wd-wordrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .wd-word{margin:0;font-size:clamp(34px,6vw,48px);line-height:1.05;font-weight:900;color:#0f172a}
+  .wd-pos{font-size:13px;color:var(--muted);font-weight:700}
+  .wd-en{font-size:20px;font-weight:800;color:#065f46}
+  .wd-say{
+    border:none;border-radius:999px;width:42px;height:42px;font-size:18px;cursor:pointer;flex-shrink:0;
+    background:#d1fae5;-webkit-tap-highlight-color:transparent;
+  }
+  .wd-say.loading{opacity:.5}
+  .wd-sentence{
+    background:#f8fafc;border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;
+  }
+  .wd-sentence .wd-ga{flex:1;font-size:19px;font-weight:700;line-height:1.45;color:#0f172a}
+  .wd-sentence .wd-ga b{background:linear-gradient(transparent 55%,rgba(16,185,129,.35) 55%);color:#065f46}
+  .wd-reveal{
+    align-self:flex-start;border:1px dashed #6ee7b7;background:#fff;color:#047857;border-radius:999px;
+    padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer;
+  }
+  .wd-trans{font-size:15px;color:#475569;font-style:italic;display:none}
+  .wd-trans.show{display:block;animation:wdPop .3s ease}
+  .wd-tip{font-size:14px;color:#334155;background:#ecfdf5;border-left:4px solid #10b981;border-radius:0 10px 10px 0;padding:9px 12px}
+  .wd-nav{display:flex;justify-content:space-between;gap:10px;margin-top:auto}
+  .wd-nav button{
+    border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer;color:#334155;
+  }
+  .wd-nav button:disabled{opacity:.35;cursor:default}
+  .wd-col-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:4px 0 8px}
+  .wd-col-head h4{margin:0;font-size:18px}
+  .wd-col-head span{font-size:13px;color:var(--muted);font-weight:700}
+  .wd-bar{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-bottom:14px}
+  .wd-bar div{height:100%;background:linear-gradient(90deg,#10b981,#06b6d4);border-radius:999px}
+  .wd-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+  .wd-tile{
+    border:none;border-radius:16px;padding:10px 6px;min-height:92px;cursor:pointer;color:#fff;
+    background:linear-gradient(140deg,var(--g1),var(--g2));display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:4px;font-weight:800;font-size:12px;text-align:center;
+    box-shadow:0 4px 12px rgba(15,23,42,.1);transition:transform .15s;-webkit-tap-highlight-color:transparent;
+  }
+  .wd-tile:hover{transform:translateY(-2px)}
+  .wd-tile .t-emoji{font-size:28px;line-height:1}
+  .wd-tile.sel{outline:3px solid #0f172a;outline-offset:2px}
+  .wd-tile.locked{background:#f1f5f9;color:#94a3b8;cursor:default;box-shadow:none;border:1px dashed #cbd5e1}
+  .wd-tile.locked:hover{transform:none}
+  @media (max-width:700px){
+    .wd-hero{grid-template-columns:1fr}
+    .wd-visual{min-height:230px}
+    .wd-body{padding:20px 18px 18px}
+    .wd-sentence .wd-ga{font-size:17px}
+  }
   /* ── Spanish reading vocab practice ───────────────── */
   .sv-wrap{max-width:900px;margin:0 auto;display:grid;gap:18px}
   .sv-modes{display:flex;gap:8px;flex-wrap:wrap}
@@ -856,6 +971,7 @@ INDEX_HTML = r"""<!doctype html>
 const SUBJECTS = __SUBJECTS__;
 const VERBS = __VERBS__;
 const SPANISH_VERBS = __SPANISH_VERBS__;
+const IRISH_WOTD = __IRISH_WOTD__;
 const BIOLOGY_MICRO_IMAGES = __BIOLOGY_MICRO_IMAGES__;
 const PAST_PAPERS = __PAST_PAPERS__;
 
@@ -943,8 +1059,9 @@ function prettyFile(path){
 // ── Subject home page configuration ─────────────────────────
 const SUBJECT_HOMES = {
   'Irish': {
-    banner: { title:'Gaeilge', desc:'Irish language revision — verb flashcards and past exam papers.' },
+    banner: { title:'Gaeilge', desc:'Irish language revision — word of the day, verb flashcards and past exam papers.' },
     topics: [
+      { key:'irish-wotd', icon:'☀️', title:'Focal an Lae · Word of the Day', desc:'A new Irish word unlocks every day — big visual, a sentence you would actually say, and audio. 50 to collect.' },
       { key:'irish-verbs', icon:'🃏', title:'Briathra · 50 Verbs', desc:'Swipeable flashcards covering present, past and future tenses for 50 essential verbs.' },
       { key:'pastpapers', icon:'📄', title:'Past Papers', desc:'Leaving Cert Irish papers (Paper 1 & 2) and listening audio files from recent years.', isPP:true },
     ]
@@ -1660,6 +1777,7 @@ function renderContent(){
   if(activeView === 'pastpapers'){ renderPastPapers(active); return; }
   if(activeView === 'maths-stats'){ renderMaths(); return; }
   if(activeView === 'english-books'){ renderEnglishBooks(); return; }
+  if(activeView === 'irish-wotd'){ renderIrishWotd(); return; }
   if(activeView === 'irish-verbs'){ renderIrishVerbs(); return; }
   if(activeView === 'spanish-verbs'){ renderSpanishVerbs(); return; }
   if(activeView === 'spanish-vocab'){ renderSpanishVocab(); return; }
@@ -1690,6 +1808,133 @@ function renderEnglishBooks(){
     shelf.appendChild(wrap);
   });
   content.appendChild(shelf);
+}
+
+// ── Irish word of the day (Focal an Lae) ─────────────────────
+const WD_THEMES = {
+  tech:['#6366f1','#06b6d4'], music:['#ec4899','#8b5cf6'], film:['#f43f5e','#f59e0b'],
+  feel:['#f97316','#facc15'], social:['#eab308','#f472b6'], food:['#ef4444','#f97316'],
+  sport:['#10b981','#0ea5e9'], life:['#14b8a6','#22c55e'],
+};
+const GA_DAYS = ['Dé Domhnaigh','Dé Luain','Dé Máirt','Dé Céadaoin','Déardaoin','Dé hAoine','Dé Sathairn'];
+const GA_MONTHS = ['Eanáir','Feabhra','Márta','Aibreán','Bealtaine','Meitheamh','Iúil','Lúnasa','Meán Fómhair','Deireadh Fómhair','Samhain','Nollaig'];
+const WD_LOADED_AT = Date.now();
+let wotdSel = IRISH_WOTD.today;
+let wotdTimer = null;
+
+function wdGrad(theme){ const g = WD_THEMES[theme] || WD_THEMES.life; return '--g1:' + g[0] + ';--g2:' + g[1]; }
+function wdCountdown(){
+  const left = Math.max(0, IRISH_WOTD.secondsToNext - Math.floor((Date.now() - WD_LOADED_AT) / 1000));
+  if(left === 0) return 'Focal nua anois!';
+  const h = Math.floor(left / 3600), m = Math.floor(left % 3600 / 60);
+  return '⏳ Focal nua i ' + (h ? h + 'u ' : '') + m + 'n';
+}
+function wdStreak(){
+  // Days in a row this device has opened Focal an Lae (just for fun; stored on the phone only).
+  try{
+    const today = new Date().toDateString();
+    const d = JSON.parse(localStorage.getItem('wdStreak') || '{}');
+    if(d.last !== today){
+      const y = new Date(Date.now() - 86400000).toDateString();
+      d.count = (d.last === y) ? (d.count || 0) + 1 : 1;
+      d.last = today;
+      localStorage.setItem('wdStreak', JSON.stringify(d));
+    }
+    return d.count || 1;
+  }catch(e){ return 0; }
+}
+function speakGa(text, btn){
+  let base = window.location.pathname;
+  if(base.endsWith('/index.html')) base = base.slice(0, -'index.html'.length);
+  else if(!base.endsWith('/')) base += '/';
+  const url = new URL(base + 'tts', window.location.origin);
+  url.searchParams.set('lang', 'ga');
+  url.searchParams.set('text', text);
+  if(btn) btn.classList.add('loading');
+  const done = () => btn && btn.classList.remove('loading');
+  const audio = new Audio(url.toString());
+  audio.addEventListener('playing', done, {once:true});
+  audio.addEventListener('ended', done, {once:true});
+  audio.addEventListener('error', () => { done(); alert('Irish speech is unavailable right now.'); }, {once:true});
+  const p = audio.play();
+  if(p) p.catch(done);
+}
+
+function renderIrishWotd(){
+  title.textContent = 'Gaeilge — Focal an Lae';
+  subtitle.textContent = 'One new word every day. Come back tomorrow to unlock the next one!';
+  content.className = '';
+  const W = IRISH_WOTD;
+  if(!W.words.length){
+    content.innerHTML = '<div class="bio-empty">Tosóidh Focal an Lae go luath — the first word unlocks soon!</div>';
+    return;
+  }
+  if(wotdSel < 0 || wotdSel >= W.words.length) wotdSel = W.words.length - 1;
+  const w = W.words[wotdSel];
+  const isToday = wotdSel === W.today;
+  const now = new Date();
+  const streak = wdStreak();
+  let h = '<div class="wd-wrap">';
+  h += '<div class="wd-top"><div class="wd-date">📅 ' + GA_DAYS[now.getDay()] + ' ' + now.getDate() + ' ' + GA_MONTHS[now.getMonth()] + '</div>';
+  h += '<div class="wd-pills">' + (streak ? '<span class="wd-pill">🔥 ' + streak + ' lá as a chéile</span>' : '');
+  h += '<span class="wd-pill" id="wdCount">' + wdCountdown() + '</span></div></div>';
+
+  h += '<article class="wd-hero">';
+  h += '<div class="wd-visual" style="' + wdGrad(w.theme) + '">';
+  h += '<span class="wd-badge">' + (isToday ? '☀️ FOCAL AN LAE' : 'FOCAL #' + w.n) + '</span>';
+  h += '<div class="wd-emoji">' + w.scene + '</div></div>';
+  h += '<div class="wd-body">';
+  h += '<div class="wd-label">' + (isToday ? 'Inniu · Today' : 'Focal ' + w.n + ' de ' + W.total) + '</div>';
+  h += '<div class="wd-wordrow"><h2 class="wd-word">' + escapeHtml(w.ga) + '</h2>';
+  h += '<button class="wd-say" id="wdSayWord" title="Hear the word">🔊</button></div>';
+  h += '<div class="wd-en">' + escapeHtml(w.en) + '</div>';
+  h += '<div class="wd-pos">' + escapeHtml(w.pos) + '</div>';
+  h += '<div class="wd-sentence"><div class="wd-ga">' + svBold(w.ex) + '</div>';
+  h += '<button class="wd-say" id="wdSaySentence" title="Hear the sentence">🔊</button></div>';
+  h += '<button class="wd-reveal" id="wdReveal">👀 Cad a chiallaíonn sé? · Show English</button>';
+  h += '<div class="wd-trans" id="wdTrans">“' + escapeHtml(w.exEn) + '”</div>';
+  if(w.tip) h += '<div class="wd-tip">💡 ' + escapeHtml(w.tip) + '</div>';
+  h += '<div class="wd-nav"><button id="wdPrev"' + (wotdSel <= 0 ? ' disabled' : '') + '>← Roimhe</button>';
+  h += isToday ? '' : '<button id="wdToday">☀️ Inniu</button>';
+  h += '<button id="wdNext"' + (wotdSel >= W.words.length - 1 ? ' disabled' : '') + '>Ar aghaidh →</button></div>';
+  h += '</div></article>';
+
+  h += '<section><div class="wd-col-head"><h4>🏅 Do bhailiúchán · Your collection</h4>';
+  h += '<span>' + W.unlocked + ' / ' + W.total + ' focal</span></div>';
+  h += '<div class="wd-bar"><div style="width:' + Math.round(W.unlocked / W.total * 100) + '%"></div></div>';
+  h += '<div class="wd-grid">';
+  for(let i = 0; i < W.total; i++){
+    const u = W.words[i];
+    if(u){
+      h += '<button class="wd-tile' + (i === wotdSel ? ' sel' : '') + '" data-i="' + i + '" style="' + wdGrad(u.theme) + '">';
+      h += '<span class="t-emoji">' + u.scene.split(/(?=\p{Extended_Pictographic})/u)[0] + '</span>' + escapeHtml(u.ga) + '</button>';
+    } else {
+      const wait = i - (W.unlocked - 1);
+      h += '<div class="wd-tile locked"><span class="t-emoji">🔒</span>' + (wait === 1 ? 'Amárach' : 'i gceann ' + wait + ' lá') + '</div>';
+    }
+  }
+  h += '</div></section></div>';
+  content.innerHTML = h;
+
+  document.getElementById('wdSayWord').onclick = e => speakGa(w.ga, e.currentTarget);
+  document.getElementById('wdSaySentence').onclick = e => speakGa(svPlain(w.ex), e.currentTarget);
+  document.getElementById('wdReveal').onclick = e => {
+    document.getElementById('wdTrans').classList.add('show');
+    e.currentTarget.style.display = 'none';
+  };
+  const go = i => { wotdSel = i; renderIrishWotd(); window.scrollTo({top:0, behavior:'smooth'}); };
+  const prev = document.getElementById('wdPrev'); if(prev) prev.onclick = () => go(wotdSel - 1);
+  const next = document.getElementById('wdNext'); if(next) next.onclick = () => go(wotdSel + 1);
+  const tod = document.getElementById('wdToday'); if(tod) tod.onclick = () => go(W.today);
+  content.querySelectorAll('.wd-tile[data-i]').forEach(t => t.onclick = () => go(+t.dataset.i));
+
+  clearInterval(wotdTimer);
+  wotdTimer = setInterval(() => {
+    const el = document.getElementById('wdCount');
+    if(!el){ clearInterval(wotdTimer); return; }
+    el.textContent = wdCountdown();
+    if(el.textContent === 'Focal nua anois!') checkForUpdate(true);
+  }, 30000);
 }
 
 function renderIrishVerbs(){
@@ -2127,7 +2372,8 @@ class Handler(BaseHTTPRequestHandler):
             html = (
                 INDEX_HTML
                 .replace("__SUBJECTS__", json.dumps(SUBJECTS))
-                .replace("__BUILD_ID__", BUILD_ID)
+                .replace("__BUILD_ID__", _page_build())
+                .replace("__IRISH_WOTD__", json.dumps(_wotd_payload(), ensure_ascii=False))
                 .replace("__VERBS__", json.dumps(VERBS, ensure_ascii=False))
                 .replace("__SPANISH_VERBS__", json.dumps(SPANISH_VERBS, ensure_ascii=False))
               .replace("__BIOLOGY_MICRO_IMAGES__", json.dumps(BIOLOGY_MICRO_IMAGES, ensure_ascii=False))
@@ -2136,7 +2382,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, html.encode("utf-8"), "text/html; charset=utf-8")
             return
         if request_path == "/version":
-            self._send(200, json.dumps({"build": BUILD_ID}).encode("utf-8"), "application/json")
+            self._send(200, json.dumps({"build": _page_build()}).encode("utf-8"), "application/json")
             return
         if request_path == "/api/verbs":
             self._send(
@@ -2192,6 +2438,9 @@ class Handler(BaseHTTPRequestHandler):
             return
         # Serve static files from subject subfolders
         safe = request_path.lstrip("/")
+        if safe.startswith("irish/wotd/"):  # future words stay hidden
+            self._send(404, b"Not found", "text/plain; charset=utf-8")
+            return
         # Only allow alphanumeric, dash, underscore, dot, slash
         import re as _re
         if _re.match(r'^[a-zA-Z0-9_\-]+(?:/[a-zA-Z0-9_\-\.]+){1,2}$', safe):
