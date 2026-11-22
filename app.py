@@ -361,6 +361,92 @@ INDEX_HTML = r"""<!doctype html>
   body.spanish .pill{background:rgba(249,115,22,.1);color:#c2410c}
   body.spanish .pill.past{background:rgba(14,165,233,.12);color:#0369a1}
   body.spanish .pill.future{background:rgba(16,185,129,.12);color:#047857}
+  /* ── Spanish reading vocab practice ───────────────── */
+  .sv-wrap{max-width:900px;margin:0 auto;display:grid;gap:18px}
+  .sv-modes{display:flex;gap:8px;flex-wrap:wrap}
+  .sv-mode{
+    border:1px solid #fed7aa;background:#fff;color:#9a3412;border-radius:999px;
+    padding:9px 16px;font-weight:700;font-size:14px;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .sv-mode.active{background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border-color:transparent}
+  .sv-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+  .sv-legend{display:flex;gap:8px;flex-wrap:wrap}
+  .sv-chip{
+    display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 10px;
+    font-size:12px;font-weight:800;white-space:nowrap;border:2px solid transparent;
+  }
+  .sv-chip-btn{cursor:pointer;font-size:13px;padding:6px 12px;background:#fff;color:var(--ink);border-color:var(--line)}
+  .sv-chip-btn.on{border-color:var(--c,#0f172a)}
+  .sv-hintline{background:#fff;border-left:4px solid;border-radius:0 10px 10px 0;padding:8px 12px;font-size:14px;font-weight:600;margin-top:10px}
+  .sv-howto{color:var(--muted);font-size:13px;margin:12px 0 10px}
+  .sv-scene{font-size:34px;line-height:1.2;letter-spacing:2px}
+  .sv-scene.sm{font-size:20px}
+  .sv-card{
+    position:relative;min-height:190px;background:linear-gradient(170deg,#fff 55%,var(--cbg));
+    border:1px solid var(--line);border-top:6px solid var(--c);border-radius:16px;box-shadow:var(--shadow);
+    padding:16px;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;user-select:none;transition:transform .15s;
+  }
+  .sv-card:hover{transform:translateY(-3px)}
+  .sv-front,.sv-back{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+  .sv-back{display:none}
+  .sv-card.flipped .sv-front{display:none}
+  .sv-card.flipped .sv-back{display:flex;animation:svFlip .25s ease}
+  @keyframes svFlip{from{transform:rotateY(90deg);opacity:.3}to{transform:none;opacity:1}}
+  .sv-card .sv-es{font-size:26px;font-weight:900;color:var(--c)}
+  .sv-card .sv-en{font-size:19px;font-weight:800;color:#0f172a}
+  .sv-ex{font-size:14px;color:#334155;line-height:1.5}
+  .sv-ex b,.sv-feedback b{color:inherit;background:rgba(249,115,22,.18);border-radius:4px;padding:0 3px}
+  .sv-ex i{color:var(--muted)}
+  .sv-tip{font-size:13px;color:#475569;background:#f8fafc;border-radius:8px;padding:6px 9px;margin-top:6px}
+  .sv-say{
+    position:absolute;top:10px;right:10px;border:none;background:rgba(249,115,22,.1);
+    border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:16px;
+  }
+  .sv-quiz{
+    background:#fff;border:1px solid #fed7aa;border-radius:18px;box-shadow:var(--shadow);
+    padding:22px;display:grid;gap:14px;
+  }
+  .sv-progress{height:8px;background:#ffedd5;border-radius:999px;overflow:hidden}
+  .sv-progress > div{height:100%;background:linear-gradient(90deg,#f97316,#ea580c);transition:width .25s}
+  .sv-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);font-weight:700}
+  .sv-prompt-label{font-size:13px;color:#c2410c;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+  .sv-prompt{font-size:26px;font-weight:800;color:#0f172a;line-height:1.35}
+  .sv-prompt .gap{display:inline-block;min-width:90px;border-bottom:3px solid #f97316;color:#ea580c}
+  .sv-opts{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  .sv-qhead{display:flex;gap:16px;align-items:center}
+  .sv-qhead .sv-scene{
+    font-size:38px;background:#fff7ed;border-radius:16px;padding:10px 14px;flex-shrink:0;
+  }
+  .sv-key{
+    display:inline-grid;place-items:center;width:24px;height:24px;border-radius:7px;
+    background:#ffedd5;color:#c2410c;font-size:12px;margin-right:10px;
+  }
+  .sv-missed-row{display:flex;gap:10px;align-items:center;border-left:4px solid;padding:4px 10px;margin:6px 0;background:#f8fafc;border-radius:0 8px 8px 0}
+  .sv-feedback{border-left:5px solid}
+  .sv-opt{
+    display:flex;align-items:center;text-align:left;border:2px solid var(--line);background:#fff;border-radius:14px;
+    padding:14px 16px;font-size:16px;font-weight:700;color:var(--ink);cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .sv-opt:hover:not(:disabled){border-color:#fdba74}
+  .sv-opt.right{border-color:#10b981;background:#ecfdf5;color:#065f46}
+  .sv-opt.wrong{border-color:#ef4444;background:#fef2f2;color:#991b1b}
+  .sv-opt:disabled{cursor:default}
+  .sv-feedback{border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.55}
+  .sv-feedback.ok{background:#ecfdf5;color:#065f46}
+  .sv-feedback.bad{background:#fef2f2;color:#991b1b}
+  .sv-feedback i{color:#475569}
+  .sv-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .sv-btn{
+    border:none;border-radius:999px;padding:11px 20px;font-weight:800;font-size:14px;cursor:pointer;
+    background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;
+  }
+  .sv-btn.ghost{background:#fff;color:#9a3412;border:1px solid #fed7aa}
+  .sv-score{font-size:40px;font-weight:900;color:#ea580c}
+  .sv-missed{margin-top:6px}
+  @media (max-width:560px){ .sv-prompt{font-size:21px} .sv-quiz{padding:16px} .sv-qhead{flex-direction:column;align-items:flex-start;gap:10px} .sv-qhead .sv-scene{font-size:28px;padding:8px 10px} }
   /* ── Maths teal theme ─────────────────────────────── */
   body.maths .tab.active{
     background:linear-gradient(135deg,#0d9488,#059669);
@@ -820,9 +906,10 @@ const SUBJECT_HOMES = {
     ]
   },
   'Spanish': {
-    banner: { title:'Español', desc:'Spanish language revision — verb flashcards and past exam papers.' },
+    banner: { title:'Español', desc:'Spanish language revision — verb flashcards, reading vocabulary and past exam papers.' },
     topics: [
       { key:'spanish-verbs', icon:'🃏', title:'Verbos · 50 Verbs', desc:'Swipeable flashcards covering present, preterite and future tenses for 50 essential verbs.' },
+      { key:'spanish-vocab', icon:'📖', title:'Vocabulario de lectura', desc:'13 linking words for reading comprehension (según, aunque, sin embargo…) — flashcards, a quick quiz and fill-the-gap.' },
       { key:'pastpapers', icon:'📄', title:'Past Papers', desc:'Leaving Cert Spanish papers and aural audio files from recent years.', isPP:true },
     ]
   },
@@ -1531,6 +1618,7 @@ function renderContent(){
   if(activeView === 'english-books'){ renderEnglishBooks(); return; }
   if(activeView === 'irish-verbs'){ renderIrishVerbs(); return; }
   if(activeView === 'spanish-verbs'){ renderSpanishVerbs(); return; }
+  if(activeView === 'spanish-vocab'){ renderSpanishVocab(); return; }
   if(activeView === 'bio-micro'){ renderBiology(); return; }
   if(activeView === 'bio-photo'){ renderPhotosynthesis(); return; }
   if(activeView === 'art-impressionism'){ renderArt(); return; }
@@ -1566,6 +1654,200 @@ function renderIrishVerbs(){
   content.className = 'grid';
   content.innerHTML = '';
   VERBS.forEach((v, i) => content.appendChild(buildCard(v, i+1)));
+}
+
+// ── Spanish reading vocabulary (Vocabulario de lectura) ─────
+const SV_TYPES = {
+  source:   { label:'Who says?',  sym:'🗣️', color:'#0891b2', bg:'#ecfeff', hint:'Tells you the source of the information.' },
+  contrast: { label:'Contrast',   sym:'⚖️', color:'#e11d48', bg:'#fff1f2', hint:'Something unexpected or opposite comes next.' },
+  addition: { label:'Adding',     sym:'➕', color:'#059669', bg:'#ecfdf5', hint:'Adds more to what was said.' },
+  cause:    { label:'Cause · why', sym:'💡', color:'#2563eb', bg:'#eff6ff', hint:'Gives the reason.' },
+  result:   { label:'Result · so', sym:'➡️', color:'#7c3aed', bg:'#f5f3ff', hint:'Gives the consequence.' },
+  time:     { label:'Time',       sym:'⏳', color:'#d97706', bg:'#fffbeb', hint:'Two things at once, or something continuing.' },
+  amount:   { label:'Amount',     sym:'📊', color:'#475569', bg:'#f1f5f9', hint:'How much or how many.' },
+};
+const SPANISH_VOCAB = [
+  { es:'según', en:'according to', type:'source', scene:'📰 🗣️', ex:'**Según** el periódico, mañana va a llover.', exEn:'According to the newspaper, it is going to rain tomorrow.', gap:'___ el periódico, mañana va a llover.', fill:'según', tip:'Look for it at the start of reading texts: según los expertos… = according to the experts…' },
+  { es:'aunque', en:'although / even though', type:'contrast', scene:'🌧️ 🏖️', ex:'**Aunque** llueve, vamos a la playa.', exEn:'Although it is raining, we are going to the beach.', gap:'___ llueve, vamos a la playa.', fill:'aunque', tip:'Followed by a verb: aunque llueve.' },
+  { es:'además', en:'besides / in addition / also', type:'addition', scene:'💶 ➕ 🛋️', ex:'El piso es barato; **además**, es muy cómodo.', exEn:'The flat is cheap; besides, it is very comfortable.', gap:'El piso es barato; ___, es muy cómodo.', fill:'además', tip:'más = more → además = and more on top.' },
+  { es:'sin embargo', en:'however', type:'contrast', scene:'📚 👉 ❌', ex:'Estudié mucho; **sin embargo**, suspendí el examen.', exEn:'I studied a lot; however, I failed the exam.', gap:'Estudié mucho; ___, suspendí el examen.', fill:'sin embargo', tip:'Usually between commas, like "however" in English.' },
+  { es:'a pesar de', en:'despite / in spite of', type:'contrast', scene:'⛈️ ⚽', ex:'Jugamos al fútbol **a pesar de** la lluvia.', exEn:'We played football despite the rain.', gap:'Jugamos al fútbol ___ la lluvia.', fill:'a pesar de', tip:'Followed by a noun: a pesar de la lluvia (aunque needs a verb).' },
+  { es:'no… sino…', en:'not… but (rather)…', type:'contrast', scene:'🩺 ❌ → 👩‍🏫 ✅', ex:'Mi madre **no** es médica **sino** profesora.', exEn:'My mother is not a doctor but a teacher.', gap:'Mi madre no es médica ___ profesora.', fill:'sino', tip:'Corrects the first idea: not X, but Y instead.' },
+  { es:'ya que', en:'since / because / as', type:'cause', scene:'📝 → 🏠', ex:'No salgo esta noche **ya que** tengo deberes.', exEn:'I am not going out tonight since I have homework.', gap:'No salgo esta noche ___ tengo deberes.', fill:'ya que', avoid:['por eso'], tip:'Same job as porque — it introduces the reason.' },
+  { es:'por eso', en:"that's why / for that reason", type:'result', scene:'😩🍽️ → 🍔', ex:'Tengo hambre; **por eso** voy a comer.', exEn:'I am hungry; that is why I am going to eat.', gap:'Tengo hambre; ___ voy a comer.', fill:'por eso', avoid:['ya que'], tip:'eso = that → "for that (reason)".' },
+  { es:'mientras', en:'while / whereas', type:'time', scene:'🎧 + 📖', ex:'Escucho música **mientras** estudio.', exEn:'I listen to music while I study.', gap:'Escucho música ___ estudio.', fill:'mientras', tip:'Two things happening at the same time.' },
+  { es:'todavía', en:'still / yet', type:'time', scene:'🎂20 🏠 ⏳', ex:'Tengo veinte años y **todavía** vivo con mis padres.', exEn:'I am twenty and I still live with my parents.', gap:'Tengo veinte años y ___ vivo con mis padres.', fill:'todavía', tip:'todavía no = not yet.' },
+  { es:'incluso', en:'even / including', type:'addition', scene:'🎉 👨‍👩‍👧 ➕ 👵', ex:'Todos vinieron a la fiesta, **incluso** mi abuela.', exEn:'Everyone came to the party, even my grandmother.', gap:'Todos vinieron a la fiesta, ___ mi abuela.', fill:'incluso', tip:'Adds something surprising: even…' },
+  { es:'la mayoría (de)', en:'most / the majority (of)', type:'amount', scene:'🧑🧑🧑🧑📱 · 🧑', ex:'**La mayoría** de los jóvenes tiene móvil.', exEn:'Most young people have a mobile phone.', gap:'___ de los jóvenes tiene móvil.', fill:'la mayoría', tip:'mayor = bigger → the bigger part.' },
+  { es:'la falta de', en:'the lack of', type:'amount', scene:'🛏️ ❌ 😴', ex:'**La falta de** sueño afecta a muchos estudiantes.', exEn:'The lack of sleep affects many students.', gap:'___ sueño afecta a muchos estudiantes.', fill:'la falta de', tip:'faltar = to be missing → what is missing.' },
+];
+let svMode = 'cards';
+let svFilter = null;
+
+function svShuffle(a){
+  a = a.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function svBold(s){ return escapeHtml(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
+function svPlain(s){ return s.replace(/\*\*/g, ''); }
+function svChip(type){
+  const t = SV_TYPES[type];
+  return '<span class="sv-chip" style="color:' + t.color + ';background:' + t.bg + '">' + t.sym + ' ' + t.label + '</span>';
+}
+function speakEs(text){
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'es-ES';
+  const v = speechSynthesis.getVoices().find(v => v.lang.toLowerCase().startsWith('es'));
+  if(v) utt.voice = v;
+  speechSynthesis.speak(utt);
+}
+
+function renderSpanishVocab(){
+  title.textContent = 'Español — Vocabulario de lectura';
+  subtitle.textContent = 'Linking words that unlock reading comprehension. Each colour shows what the word does in a sentence.';
+  content.className = '';
+  let h = '<div class="sv-wrap">';
+  h += '<div class="sv-modes">';
+  [['cards','🃏 Tarjetas'],['quiz','❓ Quiz'],['gap','✏️ Fill the gap']].forEach(([k,l]) => {
+    h += '<button class="sv-mode' + (svMode===k?' active':'') + '" data-mode="' + k + '">' + l + '</button>';
+  });
+  h += '</div><div id="svBody"></div></div>';
+  content.innerHTML = h;
+  content.querySelectorAll('.sv-mode').forEach(b => b.addEventListener('click', () => {
+    svMode = b.dataset.mode; renderSpanishVocab();
+  }));
+  if(svMode === 'cards') svRenderCards();
+  else svStartQuiz(svMode, SPANISH_VOCAB);
+}
+
+function svRenderCards(){
+  const body = document.getElementById('svBody');
+  let h = '<div class="sv-legend">';
+  h += '<button class="sv-chip sv-chip-btn' + (svFilter===null?' on':'') + '" data-type="">All 13</button>';
+  Object.keys(SV_TYPES).forEach(k => {
+    const t = SV_TYPES[k];
+    h += '<button class="sv-chip sv-chip-btn' + (svFilter===k?' on':'') + '" data-type="' + k + '" style="color:' + t.color + ';background:' + t.bg + ';--c:' + t.color + '" title="' + escapeHtml(t.hint) + '">' + t.sym + ' ' + t.label + '</button>';
+  });
+  h += '</div>';
+  if(svFilter) h += '<div class="sv-hintline" style="border-color:' + SV_TYPES[svFilter].color + '">' + SV_TYPES[svFilter].sym + ' ' + escapeHtml(SV_TYPES[svFilter].hint) + '</div>';
+  h += '<p class="sv-howto">Tap a card to flip it · 🔊 to hear it</p><div class="sv-grid">';
+  SPANISH_VOCAB.forEach((w, i) => {
+    if(svFilter && w.type !== svFilter) return;
+    const t = SV_TYPES[w.type];
+    h += '<div class="sv-card" data-i="' + i + '" style="--c:' + t.color + ';--cbg:' + t.bg + '">';
+    h += '<button class="sv-say" data-say="' + i + '" title="Listen">🔊</button>';
+    h += '<div class="sv-front"><div class="sv-scene">' + w.scene + '</div>';
+    h += '<div class="sv-es">' + escapeHtml(w.es) + '</div>' + svChip(w.type) + '</div>';
+    h += '<div class="sv-back"><div class="sv-scene sm">' + w.scene + '</div>';
+    h += '<div class="sv-en">' + escapeHtml(w.en) + '</div>';
+    h += '<div class="sv-ex">' + svBold(w.ex) + '<br><i>' + escapeHtml(w.exEn) + '</i></div>';
+    h += '<div class="sv-tip">💡 ' + escapeHtml(w.tip) + '</div></div>';
+    h += '</div>';
+  });
+  h += '</div>';
+  body.innerHTML = h;
+  body.querySelectorAll('.sv-chip-btn').forEach(b => b.addEventListener('click', () => {
+    svFilter = b.dataset.type || null; svRenderCards();
+  }));
+  body.querySelectorAll('.sv-card').forEach(c => c.addEventListener('click', () => c.classList.toggle('flipped')));
+  body.querySelectorAll('.sv-say').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation();
+    const w = SPANISH_VOCAB[+b.dataset.say];
+    const card = b.closest('.sv-card');
+    speakEs(card.classList.contains('flipped') ? svPlain(w.ex) : w.es.replace('…', '').replace(' (de)', ''));
+  }));
+}
+
+function svBuildQuestion(w, kind){
+  let pool = SPANISH_VOCAB.filter(o => o !== w);
+  if(kind === 'gap' && w.avoid) pool = pool.filter(o => !w.avoid.includes(o.fill));
+  const distract = svShuffle(pool).slice(0, 3);
+  if(kind === 'gap'){
+    return { w, kind, label:'Fill the gap', prompt:escapeHtml(w.gap).replace('___', '<span class="gap">?</span>'),
+      answer:w.fill, options:svShuffle([w.fill].concat(distract.map(o => o.fill))) };
+  }
+  if(kind === 'en-es'){
+    return { w, kind, label:'Which Spanish word means…', prompt:escapeHtml(w.en),
+      answer:w.es, options:svShuffle([w.es].concat(distract.map(o => o.es))) };
+  }
+  return { w, kind, label:'What does this mean?', prompt:escapeHtml(w.es),
+    answer:w.en, options:svShuffle([w.en].concat(distract.map(o => o.en))) };
+}
+
+function svStartQuiz(mode, words){
+  const qs = svShuffle(words).map((w, i) =>
+    svBuildQuestion(w, mode === 'gap' ? 'gap' : (i % 2 ? 'en-es' : 'es-en')));
+  const state = { mode, qs, i:0, score:0, missed:[] };
+  svRenderQuestion(state);
+}
+
+function svRenderQuestion(state){
+  const body = document.getElementById('svBody');
+  const q = state.qs[state.i];
+  const t = SV_TYPES[q.w.type];
+  const pct = Math.round(state.i / state.qs.length * 100);
+  let h = '<div class="sv-quiz">';
+  h += '<div class="sv-meta"><span>Question ' + (state.i+1) + ' of ' + state.qs.length + '</span><span>✅ ' + state.score + '</span></div>';
+  h += '<div class="sv-progress"><div style="width:' + pct + '%"></div></div>';
+  h += '<div class="sv-qhead"><div class="sv-scene">' + q.w.scene + '</div>';
+  h += '<div><div class="sv-prompt-label">' + q.label + '</div>';
+  h += '<div class="sv-prompt">' + q.prompt + '</div></div></div>';
+  h += '<div class="sv-opts">';
+  q.options.forEach((o, k) => {
+    h += '<button class="sv-opt" data-k="' + k + '"><span class="sv-key">' + 'ABCD'[k] + '</span>' + escapeHtml(o) + '</button>';
+  });
+  h += '</div><div id="svFeedback"></div></div>';
+  body.innerHTML = h;
+  body.querySelectorAll('.sv-opt').forEach(btn => btn.addEventListener('click', () => {
+    const chosen = q.options[+btn.dataset.k];
+    const ok = chosen === q.answer;
+    if(ok) state.score++; else state.missed.push(q.w);
+    body.querySelectorAll('.sv-opt').forEach(b => {
+      b.disabled = true;
+      if(q.options[+b.dataset.k] === q.answer) b.classList.add('right');
+    });
+    if(!ok) btn.classList.add('wrong');
+    let f = '<div class="sv-feedback ' + (ok ? 'ok' : 'bad') + '" style="border-left-color:' + t.color + '">';
+    f += (ok ? '✅ <b>¡Correcto!</b> ' : '❌ <b>' + escapeHtml(q.w.es) + '</b> = <b>' + escapeHtml(q.w.en) + '</b> ');
+    f += svChip(q.w.type) + '<br>' + svBold(q.w.ex) + '<br><i>' + escapeHtml(q.w.exEn) + '</i>';
+    f += '<div class="sv-tip">💡 ' + escapeHtml(q.w.tip) + '</div></div>';
+    f += '<div class="sv-actions" style="margin-top:12px"><button class="sv-btn" id="svNext">' +
+      (state.i + 1 < state.qs.length ? 'Next →' : 'See results') + '</button>' +
+      '<button class="sv-btn ghost" id="svSay">🔊 Listen</button></div>';
+    document.getElementById('svFeedback').innerHTML = f;
+    document.getElementById('svSay').onclick = () => speakEs(svPlain(q.w.ex));
+    const next = document.getElementById('svNext');
+    next.focus();
+    next.onclick = () => {
+      state.i++;
+      if(state.i < state.qs.length) svRenderQuestion(state); else svRenderResults(state);
+    };
+  }));
+}
+
+function svRenderResults(state){
+  const body = document.getElementById('svBody');
+  const total = state.qs.length;
+  const msg = state.score === total ? '¡Perfecto! 🎉' : state.score >= total * 0.7 ? '¡Muy bien! 👏' : '¡Sigue practicando! 💪';
+  let h = '<div class="sv-quiz"><div class="sv-score">' + state.score + ' / ' + total + '</div>';
+  h += '<div style="font-size:18px;font-weight:800">' + msg + '</div>';
+  if(state.missed.length){
+    h += '<div><b>Words to review:</b><div class="sv-missed">';
+    state.missed.forEach(w => {
+      h += '<div class="sv-missed-row" style="border-left-color:' + SV_TYPES[w.type].color + '"><span class="sv-scene sm">' + w.scene + '</span><span><b>' + escapeHtml(w.es) + '</b> = ' + escapeHtml(w.en) + '</span></div>';
+    });
+    h += '</div></div>';
+  }
+  h += '<div class="sv-actions">';
+  if(state.missed.length) h += '<button class="sv-btn" id="svRetryMissed">Practise missed words</button>';
+  h += '<button class="sv-btn' + (state.missed.length ? ' ghost' : '') + '" id="svRetry">Start again</button></div></div>';
+  body.innerHTML = h;
+  document.getElementById('svRetry').onclick = () => svStartQuiz(state.mode, SPANISH_VOCAB);
+  const rm = document.getElementById('svRetryMissed');
+  if(rm) rm.onclick = () => svStartQuiz(state.mode, state.missed);
 }
 
 function renderSpanishVerbs(){
